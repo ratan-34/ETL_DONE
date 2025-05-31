@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Governance - Advanced ETL Analytics Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --shadow-lg: 0 20px 40px rgba(51, 102, 255, 0.15);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Card Styles */
+        .governance-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .governance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .governance-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .governance-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+        }
+
+        /* Form Styles */
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+            outline: none;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Column Selection */
+        .column-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .column-item {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .column-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(51, 102, 255, 0.1);
+        }
+
+        .column-item.selected {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.05);
+        }
+
+        .column-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .column-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .column-type {
+            font-size: 0.875rem;
+            color: #64748B;
+            background: #F1F5F9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .column-stats {
+            font-size: 0.875rem;
+            color: #64748B;
+            margin-bottom: 0.5rem;
+        }
+
+        .governance-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .badge-high { background: #FEE2E2; color: #DC2626; }
+        .badge-medium { background: #FEF3C7; color: #D97706; }
+        .badge-low { background: #D1FAE5; color: #059669; }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 2rem;
+        }
+
+        .governance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-description {
+            font-size: 0.875rem;
+            color: #64748B;
+        }
+
+        /* Insights Section */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-category {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            background: rgba(51, 102, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .insight-description {
+            color: #64748B;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .insight-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .priority-critical { border-left-color: #EF4444; }
+        .priority-high { border-left-color: #F59E0B; }
+        .priority-medium { border-left-color: #3366FF; }
+        .priority-low { border-left-color: #10B981; }
+
+        /* Loading States */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+            color: var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .column-selection {
+                grid-template-columns: 1fr;
+            }
+
+            .governance-metrics {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ETL Benefits Section */
+        .etl-benefits {
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .etl-benefits h4 {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .benefit-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .benefit-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-description {
+            color: #64748B;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content text-center">
+                <h1 class="animate__animated animate__fadeInDown">
+                    <i class="bi bi-shield-check me-3"></i>
+                    Model Governance
+                </h1>
+                <p class="animate__animated animate__fadeInUp animate__delay-1s">
+                    Advanced LLM-powered model governance for ETL compliance, risk assessment, and audit trails
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Dataset Information Card -->
+        <div class="governance-card animate__animated animate__fadeInUp">
+            <div class="card-header">
+                <h3>
+                    <i class="bi bi-database"></i>
+                    Dataset Information
+                </h3>
+            </div>
+            <div class="form-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Dataset Name</label>
+                            <input type="text" class="form-control" id="dataset-name" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Total Rows</label>
+                            <input type="text" class="form-control" id="total-rows" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="form-label">Total Columns</label>
+                            <input type="text" class="form-control" id="total-columns" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Card -->
+        <div class="governance-card animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card-header">
+                <h3>
+                    <i class="bi bi-gear"></i>
+                    Governance Configuration
+                </h3>
+            </div>
+            <div class="form-section">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">AI Model</label>
+                            <select class="form-select" id="governance-model">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Analysis Type</label>
+                            <select class="form-select" id="analysis-type">
+                                <option value="comprehensive">Comprehensive Analysis</option>
+                                <option value="risk-focused">Risk-Focused</option>
+                                <option value="compliance-focused">Compliance-Focused</option>
+                                <option value="quality-focused">Quality-Focused</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="form-label">Compliance Framework</label>
+                            <select class="form-select" id="compliance-framework">
+                                <option value="general">General Governance</option>
+                                <option value="gdpr">GDPR Compliance</option>
+                                <option value="sox">SOX Compliance</option>
+                                <option value="basel">Basel III</option>
+                                <option value="iso27001">ISO 27001</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column Selection Card -->
+        <div class="governance-card animate__animated animate__fadeInUp animate__delay-2s">
+            <div class="card-header">
+                <h3>
+                    <i class="bi bi-list-check"></i>
+                    Column Selection for Governance Analysis
+                </h3>
+            </div>
+            <div class="form-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="mb-0 text-muted">Select columns for governance analysis. Columns with higher governance relevance are recommended.</p>
+                    <div>
+                        <button type="button" class="btn btn-outline-primary btn-sm me-2" id="select-all-columns">Select All</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="clear-selection">Clear All</button>
+                    </div>
+                </div>
+                <div class="column-selection" id="column-selection">
+                    <!-- Columns will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Controls -->
+        <div class="text-center my-4">
+            <button type="button" class="btn btn-primary btn-lg" id="start-governance-analysis">
+                <i class="bi bi-shield-check me-2"></i>
+                Start Model Governance Analysis
+            </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-3">Performing Model Governance Analysis...</h4>
+            <p class="text-muted">This may take a few moments while we analyze your data for governance compliance</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section d-none" id="results-section">
+            <!-- Governance Metrics -->
+            <div class="governance-card fade-in">
+                <div class="card-header">
+                    <h3>
+                        <i class="bi bi-graph-up"></i>
+                        Governance Metrics Dashboard
+                    </h3>
+                </div>
+                <div class="form-section">
+                    <div class="governance-metrics" id="governance-metrics">
+                        <!-- Metrics will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="governance-card slide-up">
+                <div class="card-header">
+                    <h3>
+                        <i class="bi bi-lightbulb"></i>
+                        AI-Powered Governance Insights
+                    </h3>
+                </div>
+                <div class="form-section">
+                    <div class="insights-grid" id="insights-grid">
+                        <!-- Insights will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Preview -->
+            <div class="governance-card slide-up">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>
+                        <i class="bi bi-table"></i>
+                        Enhanced Dataset with Governance Metadata
+                    </h3>
+                    <button type="button" class="btn btn-outline-light" id="download-enhanced-data">
+                        <i class="bi bi-download me-2"></i>
+                        Download Enhanced Data
+                    </button>
+                </div>
+                <div class="form-section">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="enhanced-data-table">
+                            <thead>
+                                <tr id="enhanced-table-header">
+                                    <!-- Headers will be populated here -->
+                                </tr>
+                            </thead>
+                            <tbody id="enhanced-table-body">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETL Integration Benefits -->
+            <div class="etl-benefits slide-up">
+                <h4>
+                    <i class="bi bi-diagram-3 me-2"></i>
+                    Why Use Model Governance in ETL?
+                </h4>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-shield-check me-2 text-success"></i>
+                            Risk Mitigation
+                        </div>
+                        <div class="benefit-description">
+                            Identify and mitigate model risks before deployment, ensuring robust and reliable ETL processes with comprehensive risk assessment and monitoring.
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-clipboard-check me-2 text-primary"></i>
+                            Regulatory Compliance
+                        </div>
+                        <div class="benefit-description">
+                            Ensure compliance with industry regulations (GDPR, SOX, Basel III) through automated compliance checks and comprehensive audit trails.
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-graph-up-arrow me-2 text-info"></i>
+                            Data Quality Assurance
+                        </div>
+                        <div class="benefit-description">
+                            Maintain high data quality standards with automated quality assessments, validation rules, and continuous monitoring throughout the ETL pipeline.
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-eye me-2 text-warning"></i>
+                            Model Transparency
+                        </div>
+                        <div class="benefit-description">
+                            Provide complete visibility into model decisions, data lineage, and transformation processes for stakeholder confidence and regulatory requirements.
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-arrow-repeat me-2 text-secondary"></i>
+                            Continuous Monitoring
+                        </div>
+                        <div class="benefit-description">
+                            Implement real-time monitoring for model performance, data drift, and compliance violations with automated alerting and remediation workflows.
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-title">
+                            <i class="bi bi-people me-2 text-success"></i>
+                            Stakeholder Collaboration
+                        </div>
+                        <div class="benefit-description">
+                            Enable seamless collaboration between data scientists, compliance officers, and business stakeholders with shared governance frameworks and documentation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How to Use Guide -->
+            <div class="governance-card slide-up">
+                <div class="card-header">
+                    <h3>
+                        <i class="bi bi-book"></i>
+                        How to Use Model Governance in Your ETL Pipeline
+                    </h3>
+                </div>
+                <div class="form-section">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-1-circle me-2"></i>
+                                Data Ingestion Phase
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Implement data quality gates at ingestion points
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Validate data against governance policies
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Log all data lineage and transformation metadata
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Apply privacy and security controls automatically
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-2-circle me-2"></i>
+                                Transformation Phase
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Monitor data quality throughout transformations
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Track model performance and drift detection
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Implement bias and fairness assessments
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Generate comprehensive audit documentation
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-3-circle me-2"></i>
+                                Model Deployment
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Validate model readiness for production
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Implement approval workflows and sign-offs
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Set up continuous monitoring and alerting
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Create rollback and incident response plans
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-4-circle me-2"></i>
+                                Ongoing Monitoring
+                            </h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Real-time performance and drift monitoring
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Automated compliance reporting and alerts
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Regular model validation and retraining
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    Stakeholder communication and reporting
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application State
+        let appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            governanceResult: null,
+            governanceId: null
+        };
+
+        // DOM Elements
+        const elements = {
+            datasetName: document.getElementById('dataset-name'),
+            totalRows: document.getElementById('total-rows'),
+            totalColumns: document.getElementById('total-columns'),
+            governanceModel: document.getElementById('governance-model'),
+            analysisType: document.getElementById('analysis-type'),
+            complianceFramework: document.getElementById('compliance-framework'),
+            columnSelection: document.getElementById('column-selection'),
+            selectAllBtn: document.getElementById('select-all-columns'),
+            clearSelectionBtn: document.getElementById('clear-selection'),
+            startAnalysisBtn: document.getElementById('start-governance-analysis'),
+            loadingSpinner: document.getElementById('loading-spinner'),
+            resultsSection: document.getElementById('results-section'),
+            governanceMetrics: document.getElementById('governance-metrics'),
+            insightsGrid: document.getElementById('insights-grid'),
+            enhancedTableHeader: document.getElementById('enhanced-table-header'),
+            enhancedTableBody: document.getElementById('enhanced-table-body'),
+            downloadBtn: document.getElementById('download-enhanced-data')
+        };
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session found. Please upload a dataset first.');
+                return;
+            }
+
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function setupEventListeners() {
+            elements.selectAllBtn.addEventListener('click', selectAllColumns);
+            elements.clearSelectionBtn.addEventListener('click', clearColumnSelection);
+            elements.startAnalysisBtn.addEventListener('click', startGovernanceAnalysis);
+            elements.downloadBtn.addEventListener('click', downloadEnhancedData);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`/api/model-governance/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset information');
+                }
+                
+                appState.datasetInfo = data;
+                updateDatasetDisplay(data);
+                renderColumnSelection(data.columns_info);
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateDatasetDisplay(data) {
+            elements.datasetName.value = data.filename;
+            elements.totalRows.value = data.rows.toLocaleString();
+            elements.totalColumns.value = data.columns.toLocaleString();
+        }
+
+        function renderColumnSelection(columns) {
+            elements.columnSelection.innerHTML = '';
+            
+            columns.forEach(column => {
+                const columnElement = createColumnElement(column);
+                elements.columnSelection.appendChild(columnElement);
+            });
+        }
+
+        function createColumnElement(column) {
+            const div = document.createElement('div');
+            div.className = 'column-item';
+            div.dataset.columnName = column.name;
+            
+            const relevanceBadgeClass = column.governance_relevance === 'High' ? 'badge-high' : 
+                                       column.governance_relevance === 'Medium' ? 'badge-medium' : 'badge-low';
+            
+            const riskBadgeClass = column.risk_level === 'High' ? 'badge-high' : 
+                                  column.risk_level === 'Medium' ? 'badge-medium' : 'badge-low';
+            
+            div.innerHTML = `
+                <div class="column-info">
+                    <span class="column-name">${column.name}</span>
+                    <span class="column-type">${column.type}</span>
+                </div>
+                <div class="column-stats">
+                    Missing: ${column.missing_pct} | Unique: ${column.unique_count.toLocaleString()}
+                </div>
+                <div class="governance-badges">
+                    <span class="badge ${relevanceBadgeClass}">
+                        <i class="bi bi-shield me-1"></i>
+                        ${column.governance_relevance} Relevance
+                    </span>
+                    <span class="badge ${riskBadgeClass}">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        ${column.risk_level} Risk
+                    </span>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        Sample: ${column.sample_values.slice(0, 3).join(', ')}
+                    </small>
+                </div>
+            `;
+            
+            div.addEventListener('click', () => toggleColumnSelection(div, column.name));
+            
+            return div;
+        }
+
+        function toggleColumnSelection(element, columnName) {
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                if (!appState.selectedColumns.includes(columnName)) {
+                    appState.selectedColumns.push(columnName);
+                }
+            } else {
+                appState.selectedColumns = appState.selectedColumns.filter(col => col !== columnName);
+            }
+            
+            updateAnalysisButton();
+        }
+
+        function selectAllColumns() {
+            const columnItems = document.querySelectorAll('.column-item');
+            columnItems.forEach(item => {
+                item.classList.add('selected');
+                const columnName = item.dataset.columnName;
+                if (!appState.selectedColumns.includes(columnName)) {
+                    appState.selectedColumns.push(columnName);
+                }
+            });
+            updateAnalysisButton();
+        }
+
+        function clearColumnSelection() {
+            const columnItems = document.querySelectorAll('.column-item');
+            columnItems.forEach(item => item.classList.remove('selected'));
+            appState.selectedColumns = [];
+            updateAnalysisButton();
+        }
+
+        function updateAnalysisButton() {
+            elements.startAnalysisBtn.disabled = appState.selectedColumns.length === 0;
+        }
+
+        async function startGovernanceAnalysis() {
+            if (appState.selectedColumns.length === 0) {
+                showError('Please select at least one column for governance analysis.');
+                return;
+            }
+
+            try {
+                showLoading(true);
+                hideResults();
+                
+                const requestData = {
+                    session_id: appState.sessionId,
+                    selected_columns: appState.selectedColumns,
+                    governance_model: elements.governanceModel.value,
+                    analysis_type: elements.analysisType.value,
+                    compliance_framework: elements.complianceFramework.value
+                };
+                
+                const response = await fetch('/api/model-governance/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                appState.governanceResult = data;
+                appState.governanceId = data.governance_id;
+                
+                displayResults(data);
+                showResults();
+                
+            } catch (error) {
+                console.error('Error during governance analysis:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(data) {
+            displayGovernanceMetrics(data);
+            displayInsights(data.ai_insights);
+            displayEnhancedData(data.data_preview);
+        }
+
+        function displayGovernanceMetrics(data) {
+            const metrics = [
+                {
+                    value: data.governance_score?.overall_score || 'N/A',
+                    label: 'Overall Governance Score',
+                    description: `Grade: ${data.governance_score?.grade || 'N/A'}`,
+                    icon: 'bi-speedometer2'
+                },
+                {
+                    value: data.data_quality_assessment?.overall_score?.toFixed(1) || 'N/A',
+                    label: 'Data Quality Score',
+                    description: 'Completeness, consistency, validity',
+                    icon: 'bi-check-circle'
+                },
+                {
+                    value: data.model_risk_assessment?.overall_risk_level || 'N/A',
+                    label: 'Risk Level',
+                    description: 'Model deployment risk assessment',
+                    icon: 'bi-shield-exclamation'
+                },
+                {
+                    value: data.compliance_analysis?.compliance_score?.toFixed(1) || 'N/A',
+                    label: 'Compliance Score',
+                    description: `Framework: ${data.compliance_analysis?.framework || 'N/A'}`,
+                    icon: 'bi-clipboard-check'
+                },
+                {
+                    value: data.bias_assessment?.overall_fairness_score || 'N/A',
+                    label: 'Fairness Score',
+                    description: 'Bias and fairness assessment',
+                    icon: 'bi-balance'
+                },
+                {
+                    value: `${data.processing_time}s`,
+                    label: 'Processing Time',
+                    description: 'Analysis completion time',
+                    icon: 'bi-clock'
+                }
+            ];
+            
+            elements.governanceMetrics.innerHTML = '';
+            
+            metrics.forEach(metric => {
+                const metricCard = document.createElement('div');
+                metricCard.className = 'metric-card';
+                metricCard.innerHTML = `
+                    <div class="metric-value">
+                        <i class="${metric.icon} me-2"></i>
+                        ${metric.value}
+                    </div>
+                    <div class="metric-label">${metric.label}</div>
+                    <div class="metric-description">${metric.description}</div>
+                `;
+                elements.governanceMetrics.appendChild(metricCard);
+            });
+        }
+
+        function displayInsights(insights) {
+            elements.insightsGrid.innerHTML = '';
+            
+            if (!insights || insights.length === 0) {
+                elements.insightsGrid.innerHTML = '<p class="text-muted">No insights available.</p>';
+                return;
+            }
+            
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = `insight-card priority-${insight.priority?.toLowerCase() || 'medium'}`;
+                
+                const stakeholders = insight.stakeholders ? insight.stakeholders.join(', ') : 'N/A';
+                const timeline = insight.timeline || 'N/A';
+                
+                insightCard.innerHTML = `
+                    <div class="insight-header">
+                        <div>
+                            <div class="insight-title">${insight.title}</div>
+                            <span class="insight-category">${insight.category || 'General'}</span>
+                        </div>
+                    </div>
+                    <div class="insight-description">${insight.description}</div>
+                    <div class="insight-meta">
+                        <span>
+                            <i class="bi bi-flag me-1"></i>
+                            Priority: ${insight.priority || 'Medium'}
+                        </span>
+                        <span>
+                            <i class="bi bi-clock me-1"></i>
+                            ${timeline}
+                        </span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-people me-1"></i>
+                            Stakeholders: ${stakeholders}
+                        </small>
+                    </div>
+                `;
+                
+                elements.insightsGrid.appendChild(insightCard);
+            });
+        }
+
+        function displayEnhancedData(dataPreview) {
+            if (!dataPreview || !dataPreview.data) {
+                return;
+            }
+            
+            // Clear existing content
+            elements.enhancedTableHeader.innerHTML = '';
+            elements.enhancedTableBody.innerHTML = '';
+            
+            // Create headers
+            dataPreview.columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                elements.enhancedTableHeader.appendChild(th);
+            });
+            
+            // Create rows
+            dataPreview.data.slice(0, 20).forEach(row => {
+                const tr = document.createElement('tr');
+                dataPreview.columns.forEach(column => {
+                    const td = document.createElement('td');
+                    const value = row[column];
+                    td.textContent = value !== null && value !== undefined ? value : '';
+                    tr.appendChild(td);
+                });
+                elements.enhancedTableBody.appendChild(tr);
+            });
+        }
+
+        async function downloadEnhancedData() {
+            if (!appState.governanceId) {
+                showError('No analysis result available for download.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/model-governance/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        governance_id: appState.governanceId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `model_governance_analysis_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error downloading data:', error);
+                showError('Failed to download enhanced data.');
+            }
+        }
+
+        function showLoading(show) {
+            elements.loadingSpinner.style.display = show ? 'block' : 'none';
+            elements.startAnalysisBtn.disabled = show;
+        }
+
+        function showResults() {
+            elements.resultsSection.classList.remove('d-none');
+            elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideResults() {
+            elements.resultsSection.classList.add('d-none');
+        }
+
+        function showError(message) {
+            alert(`Error: ${message}`);
+        }
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

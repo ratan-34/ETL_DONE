@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clustering (AutoML + Visual) - Dataiku Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .main-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background-color: rgba(51, 102, 255, 0.1);
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .visualization-card {
+            margin-bottom: 30px;
+        }
+        
+        .visualization-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+        
+        .cluster-card {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border: 1px solid rgba(51, 102, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .etl-benefit-card {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(251, 191, 36, 0.05) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+        
+        .badge-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .badge-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .metric-label {
+            color: #6B7280;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .hero-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-diagram-3-fill me-2"></i>
+                Clustering (AutoML + Visual)
+            </a>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-secondary me-3" onclick="window.close()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Back to Platform
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear me-1"></i>
+                        Options
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="exportResults()"><i class="bi bi-download me-2"></i>Export Results</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="resetAnalysis()"><i class="bi bi-arrow-clockwise me-2"></i>Reset Analysis</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="showHelp()"><i class="bi bi-question-circle me-2"></i>Help</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section animate__animated animate__fadeIn">
+            <div class="hero-content">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="bi bi-diagram-3-fill me-3"></i>
+                    Clustering (AutoML + Visual)
+                </h1>
+                <p class="lead mb-4">
+                    Discover hidden patterns and segments in your data using advanced machine learning algorithms with real-time visual analytics
+                </p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="d-flex justify-content-center gap-4 text-center">
+                            <div>
+                                <i class="bi bi-robot" style="font-size: 2rem; opacity: 0.9;"></i>
+                                <div class="mt-2">AutoML Selection</div>
+                            </div>
+                            <div>
+                                <i class="bi bi-eye" style="font-size: 2rem; opacity: 0.9;"></i>
+                                <div class="mt-2">Visual Analytics</div>
+                            </div>
+                            <div>
+                                <i class="bi bi-lightning" style="font-size: 2rem; opacity: 0.9;"></i>
+                                <div class="mt-2">Real-time Results</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div class="row" id="config-section">
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-sliders me-2 text-primary"></i>
+                            Dataset Configuration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="dataset-info" class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted">Loading dataset information...</span>
+                                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-check2-square me-2"></i>
+                                Select Features for Clustering
+                            </label>
+                            <div class="form-text mb-3">Choose columns that will be used for clustering analysis</div>
+                            <div id="column-selection" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Column checkboxes will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg" id="start-clustering-btn" disabled>
+                                <i class="bi bi-play-circle me-2"></i>
+                                Start Clustering Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-8">
+                <div class="card h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                            Why Use Clustering in ETL?
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-people-fill text-primary" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="fw-semibold">Customer Segmentation</h6>
+                                        <p class="text-muted mb-0">Automatically group customers for targeted marketing and analysis</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-graph-up text-success" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="fw-semibold">Pattern Discovery</h6>
+                                        <p class="text-muted mb-0">Uncover hidden patterns and relationships in your data</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-shield-check text-warning" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="fw-semibold">Anomaly Detection</h6>
+                                        <p class="text-muted mb-0">Identify outliers and unusual data points for quality control</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-lightning-charge text-danger" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="fw-semibold">Performance Optimization</h6>
+                                        <p class="text-muted mb-0">Optimize data processing and storage through intelligent grouping</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="fw-semibold mb-2">
+                                <i class="bi bi-lightbulb text-warning me-2"></i>
+                                How to Use This Feature
+                            </h6>
+                            <ol class="mb-0 text-muted">
+                                <li>Select the columns you want to analyze from your dataset</li>
+                                <li>Click "Start Clustering Analysis" to begin the AutoML process</li>
+                                <li>Review the automatically selected best algorithm and results</li>
+                                <li>Explore interactive visualizations and AI-generated insights</li>
+                                <li>Download the enhanced dataset with cluster assignments</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div class="loading-spinner" id="loading-section">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-4">Analyzing Your Data...</h4>
+            <p class="text-muted">Our AutoML engine is testing multiple algorithms to find the best clustering solution</p>
+            <div class="progress mt-4" style="width: 300px; margin: 0 auto;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <!-- Algorithm Performance Metrics -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-trophy me-2 text-warning"></i>
+                                Algorithm Performance Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4" id="metrics-row">
+                                <!-- Metrics will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizations -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-bar-chart me-2 text-primary"></i>
+                                Interactive Visualizations
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="visualizations-container">
+                                <!-- Visualizations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cluster Analysis -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-diagram-3 me-2 text-success"></i>
+                                Cluster Analysis & Characteristics
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="cluster-analysis-container">
+                                <!-- Cluster analysis will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-brain me-2 text-info"></i>
+                                AI-Powered Insights
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="ai-insights-container">
+                                <!-- AI insights will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent border-0">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-gear me-2 text-warning"></i>
+                                ETL Integration Benefits
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="etl-benefits-container">
+                                <!-- ETL benefits will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">Next Steps</h6>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <button class="btn btn-success" id="download-results-btn">
+                                    <i class="bi bi-download me-2"></i>
+                                    Download Enhanced Dataset
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="resetAnalysis()">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>
+                                    Run New Analysis
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="exportReport()">
+                                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                                    Export Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            analysisResults: null,
+            analysisId: null
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session ID found. Please upload a dataset first.');
+                return;
+            }
+            
+            // Load dataset information
+            loadDatasetInfo();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('start-clustering-btn').addEventListener('click', startClusteringAnalysis);
+            document.getElementById('download-results-btn').addEventListener('click', downloadResults);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/clustering/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset information');
+                }
+                
+                appState.datasetInfo = data;
+                renderDatasetInfo();
+                renderColumnSelection();
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+            }
+        }
+
+        function renderDatasetInfo() {
+            const datasetInfoEl = document.getElementById('dataset-info');
+            datasetInfoEl.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>${appState.datasetInfo.filename}</strong>
+                    <span class="badge badge-primary">${appState.datasetInfo.rows} rows</span>
+                </div>
+                <div class="text-muted small">
+                    ${appState.datasetInfo.columns} columns available for clustering
+                </div>
+            `;
+        }
+
+        function renderColumnSelection() {
+            const columnSelectionEl = document.getElementById('column-selection');
+            columnSelectionEl.innerHTML = '';
+            
+            appState.datasetInfo.columns_info.forEach(column => {
+                const suitabilityClass = column.clustering_suitability === 'High' ? 'text-success' : 
+                                       column.clustering_suitability === 'Medium' ? 'text-warning' : 'text-danger';
+                
+                const checkboxHtml = `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" value="${column.name}" 
+                               id="col_${column.name}" onchange="updateSelectedColumns()">
+                        <label class="form-check-label d-flex justify-content-between align-items-center" for="col_${column.name}">
+                            <div>
+                                <strong>${column.name}</strong>
+                                <small class="text-muted d-block">${column.type} • ${column.unique_count} unique</small>
+                            </div>
+                            <span class="badge ${suitabilityClass === 'text-success' ? 'bg-success' : 
+                                              suitabilityClass === 'text-warning' ? 'bg-warning' : 'bg-danger'} text-white">
+                                ${column.clustering_suitability}
+                            </span>
+                        </label>
+                    </div>
+                `;
+                columnSelectionEl.innerHTML += checkboxHtml;
+            });
+        }
+
+        function updateSelectedColumns() {
+            const checkboxes = document.querySelectorAll('#column-selection input[type="checkbox"]:checked');
+            appState.selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+            
+            const startBtn = document.getElementById('start-clustering-btn');
+            startBtn.disabled = appState.selectedColumns.length === 0;
+            
+            if (appState.selectedColumns.length > 0) {
+                startBtn.innerHTML = `
+                    <i class="bi bi-play-circle me-2"></i>
+                    Analyze ${appState.selectedColumns.length} Selected Column${appState.selectedColumns.length > 1 ? 's' : ''}
+                `;
+            } else {
+                startBtn.innerHTML = `
+                    <i class="bi bi-play-circle me-2"></i>
+                    Start Clustering Analysis
+                `;
+            }
+        }
+
+        async function startClusteringAnalysis() {
+            if (appState.selectedColumns.length === 0) {
+                showError('Please select at least one column for clustering analysis.');
+                return;
+            }
+            
+            // Show loading
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/clustering/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        selected_columns: appState.selectedColumns
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                appState.analysisResults = data;
+                appState.analysisId = data.analysis_id;
+                
+                hideLoading();
+                showResults();
+                renderResults();
+                
+            } catch (error) {
+                console.error('Error in clustering analysis:', error);
+                hideLoading();
+                showError('Analysis failed: ' + error.message);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('config-section').style.display = 'none';
+            document.getElementById('loading-section').style.display = 'block';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressBar = document.getElementById('progress-bar');
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 500);
+            
+            // Store interval to clear it later
+            window.progressInterval = interval;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-section').style.display = 'none';
+            if (window.progressInterval) {
+                clearInterval(window.progressInterval);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').classList.add('animate__animated', 'animate__fadeIn');
+        }
+
+        function renderResults() {
+            renderMetrics();
+            renderVisualizations();
+            renderClusterAnalysis();
+            renderAIInsights();
+            renderETLBenefits();
+        }
+
+        function renderMetrics() {
+            const metricsRow = document.getElementById('metrics-row');
+            const results = appState.analysisResults;
+            
+            metricsRow.innerHTML = `
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${results.algorithm_used}</div>
+                        <div class="metric-label">Best Algorithm</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${results.silhouette_score.toFixed(3)}</div>
+                        <div class="metric-label">Silhouette Score</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${results.num_clusters}</div>
+                        <div class="metric-label">Clusters Found</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${results.processing_time}s</div>
+                        <div class="metric-label">Processing Time</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderVisualizations() {
+            const container = document.getElementById('visualizations-container');
+            const visualizations = appState.analysisResults.visualizations;
+            
+            container.innerHTML = '';
+            
+            visualizations.forEach(viz => {
+                const vizHtml = `
+                    <div class="visualization-card">
+                        <h6 class="fw-semibold mb-3">${viz.title}</h6>
+                        <p class="text-muted mb-3">${viz.description}</p>
+                        <img src="data:image/png;base64,${viz.data}" alt="${viz.title}" class="img-fluid">
+                    </div>
+                `;
+                container.innerHTML += vizHtml;
+            });
+        }
+
+        function renderClusterAnalysis() {
+            const container = document.getElementById('cluster-analysis-container');
+            const clusters = appState.analysisResults.cluster_analysis;
+            
+            container.innerHTML = '';
+            
+            clusters.forEach(cluster => {
+                const clusterHtml = `
+                    <div class="cluster-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-semibold mb-0">Cluster ${cluster.cluster_id}</h6>
+                            <div>
+                                <span class="badge badge-primary">${cluster.size} points</span>
+                                <span class="badge bg-secondary">${cluster.percentage}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            ${Object.entries(cluster.characteristics).map(([feature, stats]) => `
+                                <div class="col-md-6 mb-2">
+                                    <strong>${feature}:</strong>
+                                    <div class="text-muted small">
+                                        ${stats.mean !== undefined ? 
+                                            `Mean: ${stats.mean.toFixed(2)}, Std: ${stats.std.toFixed(2)}` :
+                                            `Most common: ${Object.keys(stats.most_common)[0] || 'N/A'}`
+                                        }
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += clusterHtml;
+            });
+        }
+
+        function renderAIInsights() {
+            const container = document.getElementById('ai-insights-container');
+            const insights = appState.analysisResults.ai_insights;
+            
+            container.innerHTML = '';
+            
+            insights.forEach(insight => {
+                const priorityClass = insight.priority === 'High' ? 'bg-danger' : 
+                                    insight.priority === 'Medium' ? 'bg-warning' : 'bg-secondary';
+                
+                const insightHtml = `
+                    <div class="insight-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-semibold mb-0">${insight.title}</h6>
+                            <span class="badge ${priorityClass} text-white">${insight.priority}</span>
+                        </div>
+                        <p class="text-muted mb-2">${insight.description}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Category: ${insight.category}</small>
+                            ${insight.actionable ? '<i class="bi bi-check-circle text-success" title="Actionable"></i>' : ''}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += insightHtml;
+            });
+        }
+
+        function renderETLBenefits() {
+            const container = document.getElementById('etl-benefits-container');
+            const benefits = appState.analysisResults.etl_benefits;
+            
+            container.innerHTML = '';
+            
+            benefits.forEach(benefit => {
+                const benefitHtml = `
+                    <div class="etl-benefit-card">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0">
+                                <i class="bi bi-gear-fill text-warning" style="font-size: 1.2rem;"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="fw-semibold mb-1">${benefit.benefit}</h6>
+                                <p class="text-muted mb-2">${benefit.description}</p>
+                                <small class="text-muted">
+                                    <strong>Implementation:</strong> ${benefit.implementation}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += benefitHtml;
+            });
+        }
+
+        async function downloadResults() {
+            if (!appState.analysisId) {
+                showError('No analysis results to download.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/clustering/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: appState.analysisId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Download failed');
+                }
+                
+                // Create and trigger download
+                const blob = new Blob([data.data], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showSuccess(`Downloaded ${data.filename} with ${data.rows} rows and ${data.columns} columns.`);
+                
+            } catch (error) {
+                console.error('Error downloading results:', error);
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        function resetAnalysis() {
+            // Reset state
+            appState.selectedColumns = [];
+            appState.analysisResults = null;
+            appState.analysisId = null;
+            
+            // Reset UI
+            document.getElementById('results-section').style.display = 'none';
+            document.getElementById('config-section').style.display = 'block';
+            
+            // Uncheck all checkboxes
+            document.querySelectorAll('#column-selection input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            updateSelectedColumns();
+        }
+
+        function exportReport() {
+            if (!appState.analysisResults) {
+                showError('No analysis results to export.');
+                return;
+            }
+            
+            // Create a simple HTML report
+            const reportContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Clustering Analysis Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        .header { background: #3366FF; color: white; padding: 20px; border-radius: 8px; }
+                        .metric { display: inline-block; margin: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+                        .cluster { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Clustering Analysis Report</h1>
+                        <p>Dataset: ${appState.datasetInfo.filename}</p>
+                        <p>Generated: ${new Date().toLocaleString()}</p>
+                    </div>
+                    
+                    <h2>Performance Metrics</h2>
+                    <div class="metric">Algorithm: ${appState.analysisResults.algorithm_used}</div>
+                    <div class="metric">Silhouette Score: ${appState.analysisResults.silhouette_score.toFixed(3)}</div>
+                    <div class="metric">Clusters: ${appState.analysisResults.num_clusters}</div>
+                    <div class="metric">Processing Time: ${appState.analysisResults.processing_time}s</div>
+                    
+                    <h2>Cluster Analysis</h2>
+                    ${appState.analysisResults.cluster_analysis.map(cluster => `
+                        <div class="cluster">
+                            <h3>Cluster ${cluster.cluster_id}</h3>
+                            <p>Size: ${cluster.size} points (${cluster.percentage})</p>
+                            <h4>Characteristics:</h4>
+                            <ul>
+                                ${Object.entries(cluster.characteristics).map(([feature, stats]) => `
+                                    <li><strong>${feature}:</strong> ${stats.mean !== undefined ? 
+                                        `Mean: ${stats.mean.toFixed(2)}` : 
+                                        `Most common: ${Object.keys(stats.most_common)[0] || 'N/A'}`}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `).join('')}
+                    
+                    <h2>AI Insights</h2>
+                    ${appState.analysisResults.ai_insights.map(insight => `
+                        <div class="cluster">
+                            <h3>${insight.title}</h3>
+                            <p>${insight.description}</p>
+                            <p><strong>Category:</strong> ${insight.category} | <strong>Priority:</strong> ${insight.priority}</p>
+                        </div>
+                    `).join('')}
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([reportContent], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `clustering_report_${appState.analysisId || 'analysis'}.html`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            showSuccess('Report exported successfully!');
+        }
+
+        function exportResults() {
+            downloadResults();
+        }
+
+        function showHelp() {
+            const helpContent = `
+                <div class="modal fade" id="helpModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Clustering (AutoML + Visual) Help</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h6>How to Use This Feature:</h6>
+                                <ol>
+                                    <li><strong>Select Features:</strong> Choose the columns you want to analyze. High suitability columns work best.</li>
+                                    <li><strong>Start Analysis:</strong> Click the analysis button to begin AutoML processing.</li>
+                                    <li><strong>Review Results:</strong> Examine the automatically selected algorithm and performance metrics.</li>
+                                    <li><strong>Explore Visualizations:</strong> Use the interactive charts to understand your clusters.</li>
+                                    <li><strong>Read AI Insights:</strong> Review business recommendations and actionable insights.</li>
+                                    <li><strong>Download Data:</strong> Get your original data enhanced with cluster assignments.</li>
+                                </ol>
+                                
+                                <h6>Understanding the Results:</h6>
+                                <ul>
+                                    <li><strong>Silhouette Score:</strong> Measures cluster quality (higher is better, max 1.0)</li>
+                                    <li><strong>Cluster Size:</strong> Number of data points in each cluster</li>
+                                    <li><strong>Characteristics:</strong> Average feature values that define each cluster</li>
+                                </ul>
+                                
+                                <h6>ETL Integration:</h6>
+                                <p>Use clustering results for customer segmentation, anomaly detection, and data partitioning in your ETL pipelines.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', helpContent);
+            const modal = new bootstrap.Modal(document.getElementById('helpModal'));
+            modal.show();
+            
+            // Remove modal from DOM when hidden
+            document.getElementById('helpModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+
+        function showError(message) {
+            const alertHtml = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            const container = document.querySelector('.main-container');
+            container.insertAdjacentHTML('afterbegin', alertHtml);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const alertHtml = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            const container = document.querySelector('.main-container');
+            container.insertAdjacentHTML('afterbegin', alertHtml);
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                const alert = container.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

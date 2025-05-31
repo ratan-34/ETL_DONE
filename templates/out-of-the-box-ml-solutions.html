@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Out-of-the-Box ML Solutions - Advanced ETL Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .solution-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            height: 100%;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .solution-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .solution-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .solution-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+            border-color: var(--primary-color);
+        }
+
+        .solution-card.selected {
+            border: 2px solid var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .solution-icon {
+            font-size: 48px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .progress-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            margin: 30px 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #E2E8F0;
+            z-index: 1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step.active::after {
+            background: var(--primary-color);
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(51, 102, 255, 0.1);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(51, 102, 255, 0.3);
+        }
+
+        .data-preview-table {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .table th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .etl-benefits {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 0;
+            }
+            
+            .solution-card {
+                margin-bottom: 20px;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .step::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-robot me-2"></i>
+                Out-of-the-Box ML Solutions
+            </a>
+            <div class="ms-auto">
+                <button class="btn btn-outline-primary" onclick="window.close()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="container">
+                <h1 class="display-4 fw-bold mb-4">Out-of-the-Box ML Solutions</h1>
+                <p class="lead mb-4">Leverage pre-built machine learning solutions for common business problems. No coding required - just select your data and let AI do the work.</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="d-flex justify-content-center gap-4 flex-wrap">
+                            <div class="text-center">
+                                <div class="h3 mb-1">10+</div>
+                                <small>Pre-built Solutions</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="h3 mb-1">Real-time</div>
+                                <small>AI Processing</small>
+                            </div>
+                            <div class="text-center">
+                                <div class="h3 mb-1">Enterprise</div>
+                                <small>Grade Security</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Progress Indicator -->
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Select Solution</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Configure</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Process</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Results</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Info -->
+        <div class="row mb-4" id="datasetInfo" style="display: none;">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-database me-2"></i>Dataset Information</h5>
+                    <div id="datasetDetails"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ML Solutions Grid -->
+        <div id="solutionsGrid">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">Choose Your ML Solution</h2>
+                <p class="text-muted">Select from our comprehensive library of pre-built machine learning solutions</p>
+            </div>
+
+            <div class="row g-4" id="solutionsContainer">
+                <!-- Solutions will be loaded here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <button class="btn btn-primary btn-lg" id="proceedBtn" style="display: none;" onclick="proceedToConfiguration()">
+                    <i class="bi bi-arrow-right me-2"></i>
+                    Proceed with Selected Solution
+                </button>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div id="configurationPanel" style="display: none;">
+            <div class="results-container">
+                <h3 class="mb-4"><i class="bi bi-gear me-2"></i>Configure Your Solution</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Target Column</label>
+                            <select class="form-select" id="targetColumn">
+                                <option value="">Select target column...</option>
+                            </select>
+                            <small class="text-muted">The column you want to predict or analyze</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Feature Columns</label>
+                            <div id="featureColumns" class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                <!-- Feature columns will be loaded here -->
+                            </div>
+                            <small class="text-muted">Select columns to use as features for prediction</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Model Complexity</label>
+                            <select class="form-select" id="modelComplexity">
+                                <option value="auto">Auto (Recommended)</option>
+                                <option value="simple">Simple & Fast</option>
+                                <option value="advanced">Advanced & Accurate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Validation Split</label>
+                            <select class="form-select" id="validationSplit">
+                                <option value="0.2">80/20 Split</option>
+                                <option value="0.3">70/30 Split</option>
+                                <option value="0.1">90/10 Split</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">AI Model</label>
+                            <select class="form-select" id="aiModel">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-secondary me-3" onclick="goBackToSolutions()">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Solutions
+                    </button>
+                    <button class="btn btn-primary btn-lg" onclick="startProcessing()">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Start ML Processing
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div id="resultsPanel" style="display: none;">
+            <div class="results-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3><i class="bi bi-graph-up me-2"></i>ML Solution Results</h3>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" onclick="downloadResults()">
+                            <i class="bi bi-download me-2"></i>
+                            Download Results
+                        </button>
+                        <button class="btn btn-primary" onclick="startNewAnalysis()">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            New Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="row mb-4" id="metricsRow">
+                    <!-- Metrics will be loaded here -->
+                </div>
+
+                <!-- Data Preview -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Enhanced Dataset Preview</h5>
+                    <div class="data-preview-table">
+                        <table class="table table-striped mb-0" id="resultsTable">
+                            <thead id="resultsTableHead">
+                                <!-- Table headers will be loaded here -->
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Table data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="mb-4" id="aiInsights">
+                    <h5 class="mb-3">AI-Powered Insights</h5>
+                    <div id="insightsContainer">
+                        <!-- Insights will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- ETL Benefits -->
+                <div class="etl-benefits">
+                    <h5 class="mb-3"><i class="bi bi-diagram-3 me-2"></i>ETL Integration Benefits</h5>
+                    <div id="etlBenefits">
+                        <!-- ETL benefits will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h4 class="mb-3">Processing Your Data</h4>
+            <p class="text-muted mb-0" id="loadingMessage">Initializing ML pipeline...</p>
+            <div class="progress mt-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="loadingProgress" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentStep = 1;
+        let selectedSolution = null;
+        let datasetInfo = null;
+        let sessionId = null;
+        let processingId = null;
+
+        // ML Solutions Configuration
+        const mlSolutions = {
+            'customer_churn': {
+                title: 'Customer Churn Prediction',
+                icon: 'bi-person-x',
+                description: 'Predict which customers are likely to churn and identify key factors driving customer attrition.',
+                category: 'Customer Analytics',
+                difficulty: 'Intermediate',
+                use_cases: ['Reduce customer attrition', 'Improve retention strategies', 'Optimize marketing spend'],
+                problem_type: 'classification'
+            },
+            'fraud_detection': {
+                title: 'Fraud Detection',
+                icon: 'bi-shield-exclamation',
+                description: 'Detect fraudulent transactions and activities using advanced anomaly detection techniques.',
+                category: 'Risk Management',
+                difficulty: 'Advanced',
+                use_cases: ['Prevent financial fraud', 'Reduce false positives', 'Real-time monitoring'],
+                problem_type: 'classification'
+            },
+            'demand_forecasting': {
+                title: 'Demand Forecasting',
+                icon: 'bi-graph-up-arrow',
+                description: 'Forecast future demand for products or services to optimize inventory and planning.',
+                category: 'Supply Chain',
+                difficulty: 'Intermediate',
+                use_cases: ['Inventory optimization', 'Production planning', 'Resource allocation'],
+                problem_type: 'regression'
+            },
+            'price_optimization': {
+                title: 'Price Optimization',
+                icon: 'bi-currency-dollar',
+                description: 'Optimize pricing strategies to maximize revenue while maintaining competitiveness.',
+                category: 'Revenue Management',
+                difficulty: 'Advanced',
+                use_cases: ['Maximize revenue', 'Dynamic pricing', 'Competitive analysis'],
+                problem_type: 'regression'
+            },
+            'sentiment_analysis': {
+                title: 'Sentiment Analysis',
+                icon: 'bi-emoji-smile',
+                description: 'Analyze customer sentiment from text data to understand opinions and feedback.',
+                category: 'Text Analytics',
+                difficulty: 'Beginner',
+                use_cases: ['Social media monitoring', 'Customer feedback analysis', 'Brand perception'],
+                problem_type: 'classification'
+            },
+            'recommendation_engine': {
+                title: 'Recommendation Engine',
+                icon: 'bi-star',
+                description: 'Build personalized recommendation systems to improve customer experience and sales.',
+                category: 'Personalization',
+                difficulty: 'Advanced',
+                use_cases: ['Product recommendations', 'Content personalization', 'Cross-selling'],
+                problem_type: 'recommendation'
+            },
+            'quality_prediction': {
+                title: 'Quality Prediction',
+                icon: 'bi-award',
+                description: 'Predict product quality and defects to improve manufacturing processes.',
+                category: 'Manufacturing',
+                difficulty: 'Intermediate',
+                use_cases: ['Quality control', 'Defect prevention', 'Process optimization'],
+                problem_type: 'classification'
+            },
+            'lead_scoring': {
+                title: 'Lead Scoring',
+                icon: 'bi-target',
+                description: 'Score and rank leads based on their likelihood to convert into customers.',
+                category: 'Sales & Marketing',
+                difficulty: 'Beginner',
+                use_cases: ['Sales prioritization', 'Marketing automation', 'Conversion optimization'],
+                problem_type: 'classification'
+            }
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionId = urlParams.get('session_id');
+            
+            if (!sessionId) {
+                showError('No session ID found. Please upload a dataset first.');
+                return;
+            }
+
+            // Load dataset information
+            loadDatasetInfo();
+            
+            // Load ML solutions
+            loadMLSolutions();
+        }
+
+        function loadDatasetInfo() {
+            fetch(`/api/out-of-box-ml/dataset-info?session_id=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    datasetInfo = data;
+                    displayDatasetInfo(data);
+                    document.getElementById('progressContainer').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading dataset info:', error);
+                    showError('Failed to load dataset information.');
+                });
+        }
+
+        function displayDatasetInfo(data) {
+            const detailsHtml = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Dataset:</strong> ${data.filename}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Rows:</strong> ${data.rows.toLocaleString()}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Columns:</strong> ${data.columns}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Quality Score:</strong> ${data.quality_score}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('datasetDetails').innerHTML = detailsHtml;
+            document.getElementById('datasetInfo').style.display = 'block';
+        }
+
+        function loadMLSolutions() {
+            const container = document.getElementById('solutionsContainer');
+            container.innerHTML = '';
+
+            Object.entries(mlSolutions).forEach(([key, solution]) => {
+                const solutionCard = createSolutionCard(key, solution);
+                container.appendChild(solutionCard);
+            });
+        }
+
+        function createSolutionCard(key, solution) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6';
+
+            const difficultyColor = {
+                'Beginner': 'success',
+                'Intermediate': 'warning',
+                'Advanced': 'danger'
+            };
+
+            col.innerHTML = `
+                <div class="solution-card" onclick="selectSolution('${key}')">
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <i class="solution-icon ${solution.icon}"></i>
+                            <span class="badge bg-${difficultyColor[solution.difficulty]}">${solution.difficulty}</span>
+                        </div>
+                        <h5 class="fw-bold mb-3">${solution.title}</h5>
+                        <p class="text-muted mb-3">${solution.description}</p>
+                        <div class="mb-3">
+                            <small class="text-primary fw-semibold">${solution.category}</small>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Use Cases:</small>
+                            <ul class="list-unstyled mt-1">
+                                ${solution.use_cases.map(use_case => `<li><small>• ${use_case}</small></li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="text-center">
+                            <small class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Ready to Deploy
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return col;
+        }
+
+        function selectSolution(solutionKey) {
+            // Remove previous selection
+            document.querySelectorAll('.solution-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Add selection to clicked card
+            event.currentTarget.classList.add('selected');
+            
+            selectedSolution = solutionKey;
+            document.getElementById('proceedBtn').style.display = 'inline-block';
+        }
+
+        function proceedToConfiguration() {
+            if (!selectedSolution) {
+                showError('Please select a solution first.');
+                return;
+            }
+
+            updateStep(2);
+            document.getElementById('solutionsGrid').style.display = 'none';
+            document.getElementById('configurationPanel').style.display = 'block';
+            
+            loadConfigurationOptions();
+        }
+
+        function loadConfigurationOptions() {
+            // Load target column options
+            const targetSelect = document.getElementById('targetColumn');
+            targetSelect.innerHTML = '<option value="">Select target column...</option>';
+            
+            datasetInfo.columns_info.forEach(col => {
+                if (col.ml_suitable) {
+                    const option = document.createElement('option');
+                    option.value = col.name;
+                    option.textContent = `${col.name} (${col.type})`;
+                    targetSelect.appendChild(option);
+                }
+            });
+
+            // Load feature column options
+            const featureContainer = document.getElementById('featureColumns');
+            featureContainer.innerHTML = '';
+            
+            datasetInfo.columns_info.forEach(col => {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'form-check';
+                checkbox.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${col.name}" id="feature_${col.name}">
+                    <label class="form-check-label" for="feature_${col.name}">
+                        ${col.name} <small class="text-muted">(${col.type})</small>
+                    </label>
+                `;
+                featureContainer.appendChild(checkbox);
+            });
+        }
+
+        function goBackToSolutions() {
+            updateStep(1);
+            document.getElementById('configurationPanel').style.display = 'none';
+            document.getElementById('solutionsGrid').style.display = 'block';
+        }
+
+        function startProcessing() {
+            // Validate configuration
+            const targetColumn = document.getElementById('targetColumn').value;
+            const featureColumns = Array.from(document.querySelectorAll('#featureColumns input:checked')).map(cb => cb.value);
+            
+            if (!targetColumn) {
+                showError('Please select a target column.');
+                return;
+            }
+            
+            if (featureColumns.length === 0) {
+                showError('Please select at least one feature column.');
+                return;
+            }
+
+            updateStep(3);
+            document.getElementById('configurationPanel').style.display = 'none';
+            showLoading(true);
+
+            // Prepare request data
+            const requestData = {
+                session_id: sessionId,
+                solution_type: selectedSolution,
+                target_column: targetColumn,
+                feature_columns: featureColumns,
+                model_complexity: document.getElementById('modelComplexity').value,
+                validation_split: parseFloat(document.getElementById('validationSplit').value),
+                ai_model: document.getElementById('aiModel').value
+            };
+
+            // Start processing
+            fetch('/api/out-of-box-ml/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                
+                processingId = data.processing_id;
+                displayResults(data);
+                updateStep(4);
+                document.getElementById('resultsPanel').style.display = 'block';
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error processing ML solution:', error);
+                showError('Failed to process ML solution. Please try again.');
+            });
+        }
+
+        function displayResults(data) {
+            // Display performance metrics
+            displayMetrics(data.metrics);
+            
+            // Display data preview
+            displayDataPreview(data.enhanced_data);
+            
+            // Display AI insights
+            displayInsights(data.ai_insights);
+            
+            // Display ETL benefits
+            displayETLBenefits(data.etl_benefits);
+        }
+
+        function displayMetrics(metrics) {
+            const metricsRow = document.getElementById('metricsRow');
+            metricsRow.innerHTML = '';
+
+            const metricCards = [
+                { label: 'Accuracy', value: metrics.accuracy ? `${(metrics.accuracy * 100).toFixed(1)}%` : 'N/A', icon: 'bi-bullseye' },
+                { label: 'Processing Time', value: `${metrics.processing_time}s`, icon: 'bi-clock' },
+                { label: 'Data Quality', value: metrics.data_quality || 'Good', icon: 'bi-shield-check' },
+                { label: 'Model Confidence', value: metrics.confidence ? `${(metrics.confidence * 100).toFixed(1)}%` : 'High', icon: 'bi-graph-up' }
+            ];
+
+            metricCards.forEach(metric => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3';
+                col.innerHTML = `
+                    <div class="metric-card">
+                        <i class="${metric.icon} text-primary mb-2" style="font-size: 2rem;"></i>
+                        <div class="metric-value">${metric.value}</div>
+                        <div class="text-muted">${metric.label}</div>
+                    </div>
+                `;
+                metricsRow.appendChild(col);
+            });
+        }
+
+        function displayDataPreview(enhancedData) {
+            const tableHead = document.getElementById('resultsTableHead');
+            const tableBody = document.getElementById('resultsTableBody');
+            
+            // Clear existing content
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            if (!enhancedData || !enhancedData.data || enhancedData.data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center">No data available</td></tr>';
+                return;
+            }
+
+            // Create header
+            const headerRow = document.createElement('tr');
+            enhancedData.columns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+
+            // Create data rows (limit to first 10 rows)
+            enhancedData.data.slice(0, 10).forEach(row => {
+                const tr = document.createElement('tr');
+                enhancedData.columns.forEach(col => {
+                    const td = document.createElement('td');
+                    const value = row[col];
+                    td.textContent = value !== null && value !== undefined ? value : '';
+                    
+                    // Highlight prediction columns
+                    if (col.includes('prediction') || col.includes('predicted')) {
+                        td.classList.add('fw-bold', 'text-primary');
+                    }
+                    
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function displayInsights(insights) {
+            const container = document.getElementById('insightsContainer');
+            container.innerHTML = '';
+
+            if (!insights || insights.length === 0) {
+                container.innerHTML = '<p class="text-muted">No insights available.</p>';
+                return;
+            }
+
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = 'insight-card';
+                insightCard.innerHTML = `
+                    <h6 class="fw-bold text-primary mb-2">${insight.title}</h6>
+                    <p class="mb-0">${insight.description}</p>
+                `;
+                container.appendChild(insightCard);
+            });
+        }
+
+        function displayETLBenefits(benefits) {
+            const container = document.getElementById('etlBenefits');
+            container.innerHTML = '';
+
+            if (!benefits || benefits.length === 0) {
+                container.innerHTML = '<p class="text-muted">No ETL benefits information available.</p>';
+                return;
+            }
+
+            benefits.forEach(benefit => {
+                const benefitItem = document.createElement('div');
+                benefitItem.className = 'benefit-item';
+                benefitItem.innerHTML = `
+                    <div class="benefit-icon">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">${benefit.title}</h6>
+                        <p class="mb-0 text-muted">${benefit.description}</p>
+                    </div>
+                `;
+                container.appendChild(benefitItem);
+            });
+        }
+
+        function downloadResults() {
+            if (!processingId) {
+                showError('No results available for download.');
+                return;
+            }
+
+            const downloadData = {
+                session_id: sessionId,
+                processing_id: processingId
+            };
+
+            fetch('/api/out-of-box-ml/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(downloadData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Download failed');
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ml_solution_results_${selectedSolution}_${new Date().getTime()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                showError('Failed to download results.');
+            });
+        }
+
+        function startNewAnalysis() {
+            // Reset the application state
+            currentStep = 1;
+            selectedSolution = null;
+            processingId = null;
+            
+            // Hide all panels
+            document.getElementById('configurationPanel').style.display = 'none';
+            document.getElementById('resultsPanel').style.display = 'none';
+            
+            // Show solutions grid
+            document.getElementById('solutionsGrid').style.display = 'block';
+            document.getElementById('proceedBtn').style.display = 'none';
+            
+            // Reset step indicator
+            updateStep(1);
+            
+            // Clear selections
+            document.querySelectorAll('.solution-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        function updateStep(step) {
+            currentStep = step;
+            
+            // Update step indicators
+            for (let i = 1; i <= 4; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                stepElement.classList.remove('active', 'completed');
+                
+                if (i < step) {
+                    stepElement.classList.add('completed');
+                } else if (i === step) {
+                    stepElement.classList.add('active');
+                }
+            }
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            const progress = document.getElementById('loadingProgress');
+            const message = document.getElementById('loadingMessage');
+            
+            if (show) {
+                overlay.style.display = 'flex';
+                
+                // Simulate progress
+                let progressValue = 0;
+                const messages = [
+                    'Initializing ML pipeline...',
+                    'Analyzing data structure...',
+                    'Preparing features...',
+                    'Training models...',
+                    'Generating predictions...',
+                    'Creating insights...',
+                    'Finalizing results...'
+                ];
+                
+                const interval = setInterval(() => {
+                    progressValue += Math.random() * 15;
+                    if (progressValue > 95) progressValue = 95;
+                    
+                    progress.style.width = `${progressValue}%`;
+                    
+                    const messageIndex = Math.floor((progressValue / 100) * messages.length);
+                    if (messageIndex < messages.length) {
+                        message.textContent = messages[messageIndex];
+                    }
+                }, 500);
+                
+                // Store interval for cleanup
+                overlay.dataset.interval = interval;
+            } else {
+                overlay.style.display = 'none';
+                
+                // Clear interval
+                if (overlay.dataset.interval) {
+                    clearInterval(overlay.dataset.interval);
+                    delete overlay.dataset.interval;
+                }
+                
+                // Reset progress
+                progress.style.width = '0%';
+                message.textContent = 'Initializing ML pipeline...';
+            }
+        }
+
+        function showError(message) {
+            alert(`Error: ${message}`);
+        }
+
+        // Add some utility functions for better UX
+        function showToast(message, type = 'info') {
+            // Create a simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        if (currentStep === 1 && selectedSolution) {
+                            proceedToConfiguration();
+                        } else if (currentStep === 2) {
+                            startProcessing();
+                        }
+                        break;
+                    case 'Escape':
+                        if (currentStep === 2) {
+                            goBackToSolutions();
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

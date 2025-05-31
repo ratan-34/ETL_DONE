@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-based Data Enrichment - Advanced ETL Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Dataset Info Styles */
+        .dataset-info {
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dataset-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748B;
+            margin-top: 0.5rem;
+        }
+
+        /* Column Selection */
+        .column-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .column-card {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .column-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.15);
+        }
+
+        .column-card.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .column-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+
+        .column-type {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .enrichment-potential {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .potential-high {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .potential-medium {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .potential-low {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* Enrichment Techniques */
+        .technique-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .technique-card {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .technique-card:hover {
+            border-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+        }
+
+        .technique-card.selected {
+            border-color: var(--secondary-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+
+        .technique-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-secondary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .technique-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .technique-description {
+            color: #64748B;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .technique-category {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-secondary);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Loading Spinner */
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #E2E8F0;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Styles */
+        .results-container {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            color: #64748B;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Insights Styles */
+        .insight-card {
+            background: white;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-description {
+            color: #64748B;
+            line-height: 1.6;
+        }
+
+        .insight-category {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Data Preview */
+        .data-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table tbody td {
+            padding: 0.75rem 1rem;
+            border-color: #E2E8F0;
+        }
+
+        .table tbody tr:hover {
+            background-color: #F8FAFC;
+        }
+
+        /* ETL Benefits */
+        .etl-benefits {
+            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .benefit-content h5 {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-content p {
+            color: #64748B;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .column-grid,
+            .technique-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1 class="animate__animated animate__fadeInDown">
+                <i class="bi bi-magic"></i> AI-based Data Enrichment
+            </h1>
+            <p class="animate__animated animate__fadeInUp animate__delay-1s">
+                Transform your data with advanced AI-powered enrichment techniques for superior ETL workflows
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Dataset Information -->
+        <div class="card fade-in" id="dataset-info-card">
+            <div class="card-header">
+                <i class="bi bi-database me-2"></i>
+                Dataset Overview
+            </div>
+            <div class="card-body">
+                <div class="dataset-info">
+                    <h5 class="mb-3">
+                        <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                        <span id="dataset-name">Loading dataset information...</span>
+                    </h5>
+                    <div class="dataset-stats" id="dataset-stats">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column Selection -->
+        <div class="card fade-in" id="column-selection-card">
+            <div class="card-header">
+                <i class="bi bi-columns-gap me-2"></i>
+                Select Columns for Enrichment
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Choose the columns you want to enrich with AI-powered techniques. Each column shows its enrichment potential based on data type and content analysis.</p>
+                <div class="column-grid" id="column-grid">
+                    <!-- Columns will be populated by JavaScript -->
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" id="select-all-columns">
+                        <i class="bi bi-check-all me-2"></i>Select All
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" id="clear-column-selection">
+                        <i class="bi bi-x-circle me-2"></i>Clear Selection
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrichment Techniques -->
+        <div class="card fade-in" id="techniques-card">
+            <div class="card-header">
+                <i class="bi bi-gear-wide-connected me-2"></i>
+                AI Enrichment Techniques
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Select the AI-powered enrichment techniques to apply to your data. Each technique is optimized for specific data types and use cases.</p>
+                <div class="technique-grid" id="technique-grid">
+                    <!-- Techniques will be populated by JavaScript -->
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" id="select-all-techniques">
+                        <i class="bi bi-check-all me-2"></i>Select All Techniques
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" id="clear-technique-selection">
+                        <i class="bi bi-x-circle me-2"></i>Clear Selection
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Selection & Options -->
+        <div class="card fade-in" id="options-card">
+            <div class="card-header">
+                <i class="bi bi-sliders me-2"></i>
+                Enrichment Configuration
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="model-select" class="form-label fw-bold">AI Model</label>
+                        <select class="form-select" id="model-select">
+                            <option value="gpt-4o">GPT-4o (Recommended)</option>
+                            <option value="gpt-4">GPT-4</option>
+                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        </select>
+                        <small class="text-muted">Choose the AI model for intelligent enrichment</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="custom-instructions" class="form-label fw-bold">Custom Instructions (Optional)</label>
+                        <textarea class="form-control" id="custom-instructions" rows="3" placeholder="Provide specific instructions for data enrichment..."></textarea>
+                        <small class="text-muted">Additional context for AI-powered enrichment</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary btn-lg" id="start-enrichment">
+                <i class="bi bi-magic me-2"></i>
+                Start AI Enrichment
+            </button>
+            <button class="btn btn-secondary btn-lg" id="reset-form">
+                <i class="bi bi-arrow-clockwise me-2"></i>
+                Reset Configuration
+            </button>
+        </div>
+
+        <!-- Loading Container -->
+        <div class="loading-container" id="loading-container">
+            <div class="spinner"></div>
+            <h4 class="text-primary">AI Enrichment in Progress</h4>
+            <p class="text-muted">Our advanced AI models are analyzing and enriching your data...</p>
+            <div class="progress mt-3" style="height: 8px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="results-container">
+            <!-- Enrichment Summary -->
+            <div class="card slide-up">
+                <div class="card-header">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Enrichment Results
+                </div>
+                <div class="card-body">
+                    <div class="results-grid" id="results-grid">
+                        <!-- Results will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Preview -->
+            <div class="card slide-up" id="data-preview-card">
+                <div class="card-header">
+                    <i class="bi bi-table me-2"></i>
+                    Enriched Data Preview
+                </div>
+                <div class="card-body">
+                    <div class="data-preview">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-1">Enhanced Dataset</h6>
+                                <small class="text-muted" id="preview-info">Showing enriched data with new features</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-success" id="new-columns-badge">0 new columns</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="preview-table">
+                                <thead id="preview-thead">
+                                    <!-- Table headers will be populated by JavaScript -->
+                                </thead>
+                                <tbody id="preview-tbody">
+                                    <!-- Table data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="card slide-up" id="insights-card">
+                <div class="card-header">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    AI-Powered Insights
+                </div>
+                <div class="card-body">
+                    <div id="insights-container">
+                        <!-- Insights will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETL Benefits -->
+            <div class="etl-benefits slide-up">
+                <h4 class="text-center mb-4">
+                    <i class="bi bi-diagram-3 text-primary me-2"></i>
+                    ETL Integration Benefits
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Enhanced Data Quality</h5>
+                                <p>AI-powered data cleaning and validation ensures higher quality datasets for downstream processing.</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Improved Analytics</h5>
+                                <p>Enriched features provide deeper insights and better model performance for business intelligence.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Automated Processing</h5>
+                                <p>Reduce manual data preparation time with intelligent automation and real-time enrichment.</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Scalable ETL Workflows</h5>
+                                <p>Seamlessly integrate enrichment processes into existing ETL pipelines for consistent results.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="card slide-up">
+                <div class="card-body text-center">
+                    <h5 class="mb-3">
+                        <i class="bi bi-download text-primary me-2"></i>
+                        Download Enriched Dataset
+                    </h5>
+                    <p class="text-muted mb-4">Get your AI-enhanced dataset ready for advanced analytics and machine learning</p>
+                    <button class="btn btn-success btn-lg" id="download-enriched-data">
+                        <i class="bi bi-cloud-download me-2"></i>
+                        Download Enhanced Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Why Use AI Data Enrichment in ETL -->
+        <div class="card fade-in mt-4">
+            <div class="card-header">
+                <i class="bi bi-question-circle me-2"></i>
+                Why Use AI-based Data Enrichment in ETL?
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-star-fill me-2"></i>Key Benefits
+                        </h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Intelligent Missing Value Handling:</strong> AI predicts and fills missing values based on patterns
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Advanced Feature Engineering:</strong> Automatically creates meaningful features from raw data
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Data Quality Enhancement:</strong> Detects and corrects inconsistencies using ML algorithms
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                <strong>Real-time Processing:</strong> Enriches data streams in real-time for immediate insights
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-gear-wide-connected me-2"></i>How to Use
+                        </h6>
+                        <ol class="list-unstyled">
+                            <li class="mb-2">
+                                <span class="badge bg-primary me-2">1</span>
+                                <strong>Select Columns:</strong> Choose data columns that need enrichment
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-primary me-2">2</span>
+                                <strong>Choose Techniques:</strong> Pick AI enrichment methods based on your data type
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-primary me-2">3</span>
+                                <strong>Configure AI Model:</strong> Select the appropriate AI model for your use case
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-primary me-2">4</span>
+                                <strong>Run Enrichment:</strong> Let AI analyze and enhance your data automatically
+                            </li>
+                            <li class="mb-2">
+                                <span class="badge bg-primary me-2">5</span>
+                                <strong>Download Results:</strong> Get your enriched dataset ready for analytics
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-dark mb-2">
+                        <i class="bi bi-info-circle text-info me-2"></i>
+                        ETL Integration Tips
+                    </h6>
+                    <p class="mb-0 text-muted">
+                        This AI enrichment process can be seamlessly integrated into your existing ETL pipelines. 
+                        Use the enriched features for better data quality, improved model performance, and enhanced business intelligence. 
+                        The automated nature of these techniques makes them perfect for production ETL workflows.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let datasetInfo = null;
+        let selectedColumns = [];
+        let selectedTechniques = [];
+        let enrichmentResult = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDatasetInfo();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Column selection buttons
+            document.getElementById('select-all-columns').addEventListener('click', selectAllColumns);
+            document.getElementById('clear-column-selection').addEventListener('click', clearColumnSelection);
+            
+            // Technique selection buttons
+            document.getElementById('select-all-techniques').addEventListener('click', selectAllTechniques);
+            document.getElementById('clear-technique-selection').addEventListener('click', clearTechniqueSelection);
+            
+            // Action buttons
+            document.getElementById('start-enrichment').addEventListener('click', startEnrichment);
+            document.getElementById('reset-form').addEventListener('click', resetForm);
+            document.getElementById('download-enriched-data').addEventListener('click', downloadEnrichedData);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading('Loading dataset information...');
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session_id');
+                
+                const response = await fetch(`/api/ai-enrichment/dataset-info?session_id=${sessionId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    datasetInfo = data;
+                    displayDatasetInfo(data);
+                    displayColumns(data.columns_info);
+                    displayEnrichmentTechniques(data.enrichment_techniques);
+                    hideLoading();
+                } else {
+                    throw new Error(data.error || 'Failed to load dataset information');
+                }
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        function displayDatasetInfo(data) {
+            document.getElementById('dataset-name').textContent = data.filename;
+            
+            const statsContainer = document.getElementById('dataset-stats');
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${data.rows.toLocaleString()}</div>
+                    <div class="stat-label">Total Rows</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.columns}</div>
+                    <div class="stat-label">Total Columns</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.columns_info.filter(c => c.enrichment_potential.level === 'High').length}</div>
+                    <div class="stat-label">High Potential Columns</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.enrichment_techniques.length}</div>
+                    <div class="stat-label">Available Techniques</div>
+                </div>
+            `;
+        }
+
+        function displayColumns(columns) {
+            const columnGrid = document.getElementById('column-grid');
+            columnGrid.innerHTML = '';
+
+            columns.forEach(column => {
+                const potentialClass = `potential-${column.enrichment_potential.level.toLowerCase()}`;
+                const columnCard = document.createElement('div');
+                columnCard.className = 'column-card';
+                columnCard.dataset.columnName = column.name;
+                
+                columnCard.innerHTML = `
+                    <div class="column-header">
+                        <div class="column-name">${column.name}</div>
+                        <div class="column-type">${column.type}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Missing: ${column.missing_pct} | Unique: ${column.unique_count.toLocaleString()}</small>
+                    </div>
+                    <div class="enrichment-potential ${potentialClass}">
+                        ${column.enrichment_potential.level} Potential
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">${column.enrichment_potential.reason}</small>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Sample: ${column.sample_values.slice(0, 3).join(', ')}</small>
+                    </div>
+                `;
+                
+                columnCard.addEventListener('click', () => toggleColumnSelection(column.name, columnCard));
+                columnGrid.appendChild(columnCard);
+            });
+        }
+
+        function displayEnrichmentTechniques(techniques) {
+            const techniqueGrid = document.getElementById('technique-grid');
+            techniqueGrid.innerHTML = '';
+
+            const iconMap = {
+                'missing_value_imputation': 'bi-patch-check',
+                'text_enrichment': 'bi-chat-text',
+                'categorical_encoding': 'bi-diagram-2',
+                'temporal_features': 'bi-clock-history',
+                'clustering_labels': 'bi-diagram-3',
+                'anomaly_detection': 'bi-exclamation-triangle',
+                'data_validation': 'bi-shield-check',
+                'external_enrichment': 'bi-cloud-plus'
+            };
+
+            techniques.forEach(technique => {
+                const techniqueCard = document.createElement('div');
+                techniqueCard.className = 'technique-card';
+                techniqueCard.dataset.techniqueId = technique.id;
+                
+                const icon = iconMap[technique.id] || 'bi-gear';
+                
+                techniqueCard.innerHTML = `
+                    <div class="technique-category">${technique.category}</div>
+                    <div class="technique-icon">
+                        <i class="bi ${icon}"></i>
+                    </div>
+                    <div class="technique-title">${technique.name}</div>
+                    <div class="technique-description">${technique.description}</div>
+                `;
+                
+                techniqueCard.addEventListener('click', () => toggleTechniqueSelection(technique.id, techniqueCard));
+                techniqueGrid.appendChild(techniqueCard);
+            });
+        }
+
+        function toggleColumnSelection(columnName, cardElement) {
+            const index = selectedColumns.indexOf(columnName);
+            if (index > -1) {
+                selectedColumns.splice(index, 1);
+                cardElement.classList.remove('selected');
+            } else {
+                selectedColumns.push(columnName);
+                cardElement.classList.add('selected');
+            }
+            updateStartButtonState();
+        }
+
+        function toggleTechniqueSelection(techniqueId, cardElement) {
+            const index = selectedTechniques.indexOf(techniqueId);
+            if (index > -1) {
+                selectedTechniques.splice(index, 1);
+                cardElement.classList.remove('selected');
+            } else {
+                selectedTechniques.push(techniqueId);
+                cardElement.classList.add('selected');
+            }
+            updateStartButtonState();
+        }
+
+        function selectAllColumns() {
+            selectedColumns = datasetInfo.columns_info.map(col => col.name);
+            document.querySelectorAll('.column-card').forEach(card => {
+                card.classList.add('selected');
+            });
+            updateStartButtonState();
+        }
+
+        function clearColumnSelection() {
+            selectedColumns = [];
+            document.querySelectorAll('.column-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateStartButtonState();
+        }
+
+        function selectAllTechniques() {
+            selectedTechniques = datasetInfo.enrichment_techniques.map(tech => tech.id);
+            document.querySelectorAll('.technique-card').forEach(card => {
+                card.classList.add('selected');
+            });
+            updateStartButtonState();
+        }
+
+        function clearTechniqueSelection() {
+            selectedTechniques = [];
+            document.querySelectorAll('.technique-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateStartButtonState();
+        }
+
+        function updateStartButtonState() {
+            const startButton = document.getElementById('start-enrichment');
+            const canStart = selectedColumns.length > 0 && selectedTechniques.length > 0;
+            startButton.disabled = !canStart;
+            
+            if (canStart) {
+                startButton.innerHTML = `
+                    <i class="bi bi-magic me-2"></i>
+                    Enrich ${selectedColumns.length} Columns with ${selectedTechniques.length} Techniques
+                `;
+            } else {
+                startButton.innerHTML = `
+                    <i class="bi bi-magic me-2"></i>
+                    Start AI Enrichment
+                `;
+            }
+        }
+
+        async function startEnrichment() {
+            if (selectedColumns.length === 0 || selectedTechniques.length === 0) {
+                showError('Please select at least one column and one enrichment technique.');
+                return;
+            }
+
+            try {
+                showLoading('AI enrichment in progress...');
+                updateProgress(0);
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session_id');
+                
+                const requestData = {
+                    session_id: sessionId,
+                    selected_columns: selectedColumns,
+                    enrichment_techniques: selectedTechniques,
+                    model: document.getElementById('model-select').value,
+                    custom_instructions: document.getElementById('custom-instructions').value
+                };
+
+                // Simulate progress updates
+                const progressInterval = setInterval(() => {
+                    const currentProgress = parseInt(document.getElementById('progress-bar').style.width) || 0;
+                    if (currentProgress < 90) {
+                        updateProgress(currentProgress + Math.random() * 15);
+                    }
+                }, 1000);
+
+                const response = await fetch('/api/ai-enrichment/enrich', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                clearInterval(progressInterval);
+                updateProgress(100);
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    enrichmentResult = data;
+                    displayResults(data);
+                    hideLoading();
+                    document.getElementById('results-container').style.display = 'block';
+                    document.getElementById('results-container').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error(data.error || 'Enrichment failed');
+                }
+            } catch (error) {
+                console.error('Error during enrichment:', error);
+                showError('Enrichment failed: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        function displayResults(data) {
+            // Display metrics
+            const resultsGrid = document.getElementById('results-grid');
+            resultsGrid.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">${data.new_columns_added.length}</div>
+                    <div class="metric-label">New Features Created</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${data.metrics.enrichment_ratio.toFixed(2)}x</div>
+                    <div class="metric-label">Feature Expansion Ratio</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${data.metrics.data_quality_improvement.toFixed(1)}%</div>
+                    <div class="metric-label">Quality Improvement</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${data.processing_time}s</div>
+                    <div class="metric-label">Processing Time</div>
+                </div>
+            `;
+
+            // Display data preview
+            displayDataPreview(data.data_preview);
+
+            // Display insights
+            displayInsights(data.ai_insights);
+
+            // Update new columns badge
+            document.getElementById('new-columns-badge').textContent = `${data.new_columns_added.length} new columns`;
+        }
+
+        function displayDataPreview(preview) {
+            const thead = document.getElementById('preview-thead');
+            const tbody = document.getElementById('preview-tbody');
+            
+            // Create headers
+            thead.innerHTML = `
+                <tr>
+                    ${preview.columns.map(col => `<th>${col}</th>`).join('')}
+                </tr>
+            `;
+            
+            // Create rows (show first 10 rows)
+            tbody.innerHTML = preview.data.slice(0, 10).map(row => `
+                <tr>
+                    ${preview.columns.map(col => `<td>${row[col] || ''}</td>`).join('')}
+                </tr>
+            `).join('');
+
+            // Update preview info
+            document.getElementById('preview-info').textContent = 
+                `Showing ${Math.min(10, preview.data.length)} of ${preview.shape[0]} rows, ${preview.shape[1]} columns total`;
+        }
+
+        function displayInsights(insights) {
+            const insightsContainer = document.getElementById('insights-container');
+            insightsContainer.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-description">${insight.description}</div>
+                    <div class="insight-category">${insight.category}</div>
+                </div>
+            `).join('');
+        }
+
+        async function downloadEnrichedData() {
+            if (!enrichmentResult) {
+                showError('No enriched data available for download.');
+                return;
+            }
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session_id');
+                
+                const response = await fetch('/api/ai-enrichment/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        enrichment_id: enrichmentResult.enrichment_id
+                    })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ai_enriched_data_${new Date().toISOString().slice(0, 10)}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Download failed');
+                }
+            } catch (error) {
+                console.error('Error downloading data:', error);
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        function resetForm() {
+            selectedColumns = [];
+            selectedTechniques = [];
+            enrichmentResult = null;
+            
+            document.querySelectorAll('.column-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.technique-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            document.getElementById('model-select').value = 'gpt-4o';
+            document.getElementById('custom-instructions').value = '';
+            document.getElementById('results-container').style.display = 'none';
+            
+            updateStartButtonState();
+        }
+
+        function showLoading(message) {
+            document.getElementById('loading-container').style.display = 'block';
+            if (message) {
+                document.querySelector('#loading-container h4').textContent = message;
+            }
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-container').style.display = 'none';
+        }
+
+        function updateProgress(percentage) {
+            document.getElementById('progress-bar').style.width = percentage + '%';
+        }
+
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

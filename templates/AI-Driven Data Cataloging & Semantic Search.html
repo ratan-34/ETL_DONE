@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Driven Data Cataloging & Semantic Search - Dataiku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .main-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 32px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-primary);
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+        
+        .form-select, .form-control {
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        .badge {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .badge-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .badge-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        
+        .badge-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 80px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+        }
+        
+        .column-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px solid #E2E8F0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .column-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.1);
+        }
+        
+        .column-card.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #E2E8F0;
+            margin-bottom: 20px;
+        }
+        
+        .search-result {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .search-result:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.1);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: #E2E8F0;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+        
+        .etl-benefit {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .feature-highlight {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(51, 102, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-section {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)"/>
+                    <path d="M8 12h16v8H8z" fill="white" opacity="0.9"/>
+                    <path d="M12 8h8v16h-8z" fill="white" opacity="0.7"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3366FF"/>
+                            <stop offset="50%" style="stop-color:#6366F1"/>
+                            <stop offset="100%" style="stop-color:#8B5CF6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                Dataiku
+            </a>
+            <div class="d-flex align-items-center ms-auto">
+                <div id="dataset-chip" class="me-3">
+                    <span class="badge badge-primary">
+                        <i class="bi bi-table me-1"></i>
+                        <span id="dataset-name">Dataset Loaded</span>
+                    </span>
+                </div>
+                <button class="btn btn-outline-primary" onclick="window.close()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <div class="hero-section animate__animated animate__fadeIn">
+            <div class="hero-content">
+                <h1 class="hero-title">AI-Driven Data Cataloging & Semantic Search</h1>
+                <p class="hero-subtitle">
+                    Automatically discover, classify, and document your data using advanced AI. 
+                    Transform raw datasets into intelligent, searchable data catalogs with semantic understanding.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <button class="btn btn-light btn-lg px-4 py-3" style="color: var(--primary-color); font-weight: 600;" onclick="scrollToAnalysis()">
+                        <i class="bi bi-search me-2"></i>
+                        Start Analysis
+                    </button>
+                    <button class="btn btn-outline-light btn-lg px-4 py-3" onclick="showDemo()">
+                        <i class="bi bi-play me-2"></i>
+                        View Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Overview -->
+        <div class="row mb-4" id="dataset-overview">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="mb-2" style="color: var(--dark-color); font-weight: 700;">Dataset Overview</h4>
+                                <p class="text-muted mb-0" id="dataset-info">Loading dataset information...</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <span class="badge badge-primary" id="row-count">0 rows</span>
+                                <span class="badge" style="background: var(--gradient-secondary); color: white;" id="column-count">0 columns</span>
+                            </div>
+                        </div>
+                        
+                        <div class="row" id="columns-container">
+                            <!-- Column cards will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Configuration -->
+        <div class="row mb-4" id="analysis-config">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                            <i class="bi bi-gear me-2" style="color: var(--primary-color);"></i>
+                            Analysis Configuration
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">AI Model</label>
+                                <select class="form-select" id="ai-model">
+                                    <option value="gpt-4o">GPT-4 Optimized (Recommended)</option>
+                                    <option value="gpt-4">GPT-4 Standard</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Fast)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Analysis Depth</label>
+                                <select class="form-select" id="analysis-depth">
+                                    <option value="comprehensive">Comprehensive (Recommended)</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="quick">Quick Analysis</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Selected Columns</label>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="selectAllColumns()">
+                                        <i class="bi bi-check-all me-1"></i>
+                                        Select All
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="clearSelection()">
+                                        <i class="bi bi-x-circle me-1"></i>
+                                        Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary btn-lg px-5 py-3" id="start-analysis-btn" onclick="startAnalysis()">
+                                <i class="bi bi-cpu me-2"></i>
+                                Start AI Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-4" style="color: var(--dark-color);">AI is analyzing your data...</h4>
+            <p class="text-muted">This may take a few moments depending on dataset size and analysis depth</p>
+            <div class="progress mt-3" style="width: 300px; margin: 0 auto;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" style="display: none;">
+            <!-- Column Classifications -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-tags me-2" style="color: var(--primary-color);"></i>
+                                Column Classifications & Semantic Analysis
+                            </h5>
+                            <div class="row" id="column-classifications">
+                                <!-- Classification results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semantic Search -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-search me-2" style="color: var(--primary-color);"></i>
+                                Semantic Search
+                            </h5>
+                            
+                            <div class="search-box">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="search-input" 
+                                           placeholder="Try: 'find all customer emails', 'show me financial data', 'locate personal information'">
+                                    <button class="btn btn-primary" onclick="performSearch()">
+                                        <i class="bi bi-search"></i>
+                                        Search
+                                    </button>
+                                </div>
+                                <div class="mt-3">
+                                    <small class="text-muted">Example searches:</small>
+                                    <div class="mt-2">
+                                        <button class="btn btn-outline-primary btn-sm me-2 mb-2" onclick="searchExample('find all customer emails')">
+                                            Find customer emails
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm me-2 mb-2" onclick="searchExample('show me financial data')">
+                                            Financial data
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm me-2 mb-2" onclick="searchExample('locate personal information')">
+                                            Personal information
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm me-2 mb-2" onclick="searchExample('find date columns')">
+                                            Date columns
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="search-results">
+                                <!-- Search results will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Tags & Metadata -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-bookmark me-2" style="color: var(--primary-color);"></i>
+                                Smart Tags
+                            </h5>
+                            <div id="smart-tags">
+                                <!-- Smart tags will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-info-circle me-2" style="color: var(--primary-color);"></i>
+                                Data Quality Assessment
+                            </h5>
+                            <div id="data-quality">
+                                <!-- Data quality metrics will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETL Recommendations -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h5 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-arrow-repeat me-2" style="color: var(--primary-color);"></i>
+                                ETL Workflow Recommendations
+                            </h5>
+                            <div class="row" id="etl-recommendations">
+                                <!-- ETL recommendations will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body p-4 text-center">
+                            <h5 class="mb-3" style="color: var(--dark-color); font-weight: 700;">
+                                <i class="bi bi-download me-2" style="color: var(--primary-color);"></i>
+                                Download Enhanced Dataset
+                            </h5>
+                            <p class="text-muted mb-4">Download your dataset enriched with AI-generated metadata and classifications</p>
+                            <button class="btn btn-success btn-lg px-5 py-3" id="download-btn" onclick="downloadEnhancedDataset()">
+                                <i class="bi bi-cloud-download me-2"></i>
+                                Download Enhanced Dataset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETL Benefits Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="feature-highlight">
+                    <h4 class="mb-4" style="color: var(--dark-color); font-weight: 700;">
+                        <i class="bi bi-lightbulb me-2" style="color: var(--primary-color);"></i>
+                        Why AI-Driven Data Cataloging is Essential for ETL Workflows
+                    </h4>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="etl-benefit">
+                                <h6 class="fw-bold mb-2" style="color: var(--success-color);">
+                                    <i class="bi bi-shield-check me-2"></i>
+                                    Automated Data Discovery
+                                </h6>
+                                <p class="mb-0">Automatically identify and classify data types, patterns, and business meaning without manual intervention. Reduces data discovery time by 90%.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="etl-benefit">
+                                <h6 class="fw-bold mb-2" style="color: var(--success-color);">
+                                    <i class="bi bi-search me-2"></i>
+                                    Semantic Search Capabilities
+                                </h6>
+                                <p class="mb-0">Find data using natural language queries. Search for "customer emails" instead of remembering exact column names. Improves data accessibility by 80%.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="etl-benefit">
+                                <h6 class="fw-bold mb-2" style="color: var(--success-color);">
+                                    <i class="bi bi-lock me-2"></i>
+                                    Privacy & Compliance
+                                </h6>
+                                <p class="mb-0">Automatically detect sensitive data (PII, financial) and apply appropriate privacy classifications. Ensures GDPR and regulatory compliance.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="etl-benefit">
+                                <h6 class="fw-bold mb-2" style="color: var(--success-color);">
+                                    <i class="bi bi-graph-up me-2"></i>
+                                    Data Quality Insights
+                                </h6>
+                                <p class="mb-0">AI-powered quality assessment identifies completeness, consistency, and accuracy issues. Improves overall data quality by 70%.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <h5 class="mb-3" style="color: var(--dark-color); font-weight: 700;">How to Use This Feature</h5>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="text-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; margin-bottom: 12px;">
+                                        <span class="fw-bold">1</span>
+                                    </div>
+                                    <h6 class="fw-bold">Upload Dataset</h6>
+                                    <p class="small text-muted">Upload your CSV or Excel file to the platform</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="text-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; margin-bottom: 12px;">
+                                        <span class="fw-bold">2</span>
+                                    </div>
+                                    <h6 class="fw-bold">Select Columns</h6>
+                                    <p class="small text-muted">Choose which columns to analyze or select all</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="text-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; margin-bottom: 12px;">
+                                        <span class="fw-bold">3</span>
+                                    </div>
+                                    <h6 class="fw-bold">AI Analysis</h6>
+                                    <p class="small text-muted">Let AI classify and understand your data semantically</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="text-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px; margin-bottom: 12px;">
+                                        <span class="fw-bold">4</span>
+                                    </div>
+                                    <h6 class="fw-bold">Search & Download</h6>
+                                    <p class="small text-muted">Use semantic search and download enriched dataset</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            analysisResult: null,
+            analysisId: null
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            console.log('Initializing app with session_id:', appState.sessionId);
+            
+            if (!appState.sessionId) {
+                alert('No session found. Please upload a dataset first.');
+                window.close();
+                return;
+            }
+            
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function loadDatasetInfo() {
+            console.log('Loading dataset info for session:', appState.sessionId);
+            
+            // Fetch real dataset information from backend
+            fetch(`/api/ai-cataloging/dataset-info?session_id=${appState.sessionId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                console.log('Dataset info response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dataset info response:', data);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                appState.datasetInfo = data;
+                renderDatasetOverview();
+            })
+            .catch(error => {
+                console.error('Error loading dataset info:', error);
+                alert('Error loading dataset information: ' + error.message);
+            });
+        }
+
+        function renderDatasetOverview() {
+            // Update dataset info
+            document.getElementById('dataset-name').textContent = appState.datasetInfo.filename;
+            document.getElementById('dataset-info').textContent = `${appState.datasetInfo.rows} rows × ${appState.datasetInfo.columns} columns`;
+            document.getElementById('row-count').textContent = `${appState.datasetInfo.rows} rows`;
+            document.getElementById('column-count').textContent = `${appState.datasetInfo.columns} columns`;
+            
+            // Render column cards
+            const columnsContainer = document.getElementById('columns-container');
+            columnsContainer.innerHTML = '';
+            
+            appState.datasetInfo.columns_info.forEach(column => {
+                const columnCard = createColumnCard(column);
+                columnsContainer.appendChild(columnCard);
+            });
+        }
+
+        function createColumnCard(column) {
+            const card = document.createElement('div');
+            card.className = 'col-md-6 col-lg-4 mb-3';
+            
+            const qualityColor = getQualityColor(parseFloat(column.missing_pct));
+            
+            card.innerHTML = `
+                <div class="column-card" data-column="${column.name}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold mb-0" style="color: var(--dark-color);">${column.name}</h6>
+                        <span class="badge ${qualityColor}">${column.missing_pct} missing</span>
+                    </div>
+                    <p class="text-muted small mb-2">Type: ${column.type}</p>
+                    <p class="text-muted small mb-2">Unique: ${column.unique_count.toLocaleString()}</p>
+                    <div class="mb-2">
+                        <small class="text-muted">Sample values:</small>
+                        <div class="mt-1">
+                            ${column.sample_values.slice(0, 3).map(val => 
+                                `<span class="badge bg-light text-dark me-1">${val}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="col-${column.name}" onchange="toggleColumnSelection('${column.name}')">
+                        <label class="form-check-label small" for="col-${column.name}">
+                            Include in analysis
+                        </label>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function getQualityColor(missingPct) {
+            if (missingPct === 0) return 'badge-success';
+            if (missingPct < 5) return 'badge-warning';
+            return 'badge-danger';
+        }
+
+        function toggleColumnSelection(columnName) {
+            const checkbox = document.getElementById(`col-${columnName}`);
+            const card = document.querySelector(`[data-column="${columnName}"]`);
+            
+            if (checkbox.checked) {
+                appState.selectedColumns.push(columnName);
+                card.classList.add('selected');
+            } else {
+                appState.selectedColumns = appState.selectedColumns.filter(col => col !== columnName);
+                card.classList.remove('selected');
+            }
+            
+            updateStartButton();
+        }
+
+        function selectAllColumns() {
+            appState.datasetInfo.columns_info.forEach(column => {
+                const checkbox = document.getElementById(`col-${column.name}`);
+                const card = document.querySelector(`[data-column="${column.name}"]`);
+                
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    card.classList.add('selected');
+                    if (!appState.selectedColumns.includes(column.name)) {
+                        appState.selectedColumns.push(column.name);
+                    }
+                }
+            });
+            
+            updateStartButton();
+        }
+
+        function clearSelection() {
+            appState.selectedColumns = [];
+            
+            document.querySelectorAll('.column-card input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            document.querySelectorAll('.column-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            updateStartButton();
+        }
+
+        function updateStartButton() {
+            const startBtn = document.getElementById('start-analysis-btn');
+            if (appState.selectedColumns.length > 0) {
+                startBtn.disabled = false;
+                startBtn.innerHTML = `
+                    <i class="bi bi-cpu me-2"></i>
+                    Analyze ${appState.selectedColumns.length} Column${appState.selectedColumns.length > 1 ? 's' : ''}
+                `;
+            } else {
+                startBtn.disabled = true;
+                startBtn.innerHTML = `
+                    <i class="bi bi-cpu me-2"></i>
+                    Select Columns to Analyze
+                `;
+            }
+        }
+
+        function scrollToAnalysis() {
+            document.getElementById('analysis-config').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showDemo() {
+            alert('Demo functionality would show a video or interactive tour of the AI cataloging features.');
+        }
+
+        function startAnalysis() {
+            if (appState.selectedColumns.length === 0) {
+                alert('Please select at least one column to analyze.');
+                return;
+            }
+            
+            // Show loading spinner
+            showLoading(true);
+            
+            // Simulate progress
+            simulateProgress();
+            
+            // Prepare analysis request
+            const analysisRequest = {
+                session_id: appState.sessionId,
+                selected_columns: appState.selectedColumns,
+                ai_model: document.getElementById('ai-model').value,
+                analysis_depth: document.getElementById('analysis-depth').value
+            };
+            
+            console.log('Starting analysis with request:', analysisRequest);
+            
+            // Send analysis request
+            fetch('/api/ai-cataloging/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(analysisRequest)
+            })
+            .then(response => {
+                console.log('Analysis response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Analysis response:', data);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                appState.analysisResult = data;
+                appState.analysisId = data.analysis_id;
+                showLoading(false);
+                renderAnalysisResults();
+            })
+            .catch(error => {
+                console.error('Error during analysis:', error);
+                showLoading(false);
+                alert('Analysis failed: ' + error.message);
+            });
+        }
+
+        function simulateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        function showLoading(show) {
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const resultsSection = document.getElementById('results-section');
+            
+            if (show) {
+                loadingSpinner.style.display = 'block';
+                resultsSection.style.display = 'none';
+                document.getElementById('progress-bar').style.width = '0%';
+            } else {
+                loadingSpinner.style.display = 'none';
+                resultsSection.style.display = 'block';
+            }
+        }
+
+        function renderAnalysisResults() {
+            renderColumnClassifications();
+            renderSmartTags();
+            renderDataQuality();
+            renderETLRecommendations();
+            
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderColumnClassifications() {
+            const container = document.getElementById('column-classifications');
+            container.innerHTML = '';
+            
+            appState.analysisResult.column_classifications.forEach(classification => {
+                const classificationCard = createClassificationCard(classification);
+                container.appendChild(classificationCard);
+            });
+        }
+
+        function createClassificationCard(classification) {
+            const card = document.createElement('div');
+            card.className = 'col-md-6 col-lg-4 mb-3';
+            
+            const privacyColor = getPrivacyColor(classification.privacy_level);
+            const qualityColor = getQualityScoreColor(classification.quality_score);
+            
+            card.innerHTML = `
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h6 class="fw-bold mb-0">${classification.column_name}</h6>
+                            <span class="badge ${privacyColor}">${classification.privacy_level}</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span class="badge badge-primary mb-2">${classification.semantic_type}</span>
+                            <span class="badge bg-secondary mb-2">${classification.data_category}</span>
+                        </div>
+                        
+                        <p class="text-muted small mb-3">${classification.business_meaning}</p>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">Quality Score</small>
+                                <small class="fw-bold ${qualityColor}">${classification.quality_score}%</small>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar ${qualityColor.replace('text-', 'bg-')}" style="width: ${classification.quality_score}%"></div>
+                            </div>
+                        </div>
+                        
+                        ${classification.patterns_detected && classification.patterns_detected.length > 0 ? `
+                            <div class="mb-2">
+                                <small class="text-muted">Patterns:</small>
+                                <div class="mt-1">
+                                    ${classification.patterns_detected.map(pattern => 
+                                        `<span class="badge bg-light text-dark me-1">${pattern}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function getPrivacyColor(privacyLevel) {
+            switch (privacyLevel) {
+                case 'Public': return 'badge-success';
+                case 'Internal': return 'badge-warning';
+                case 'Confidential': return 'badge-danger';
+                case 'Restricted': return 'bg-dark text-white';
+                default: return 'badge-secondary';
+            }
+        }
+
+        function getQualityScoreColor(score) {
+            if (score >= 90) return 'text-success';
+            if (score >= 70) return 'text-warning';
+            return 'text-danger';
+        }
+
+        function renderSmartTags() {
+            const container = document.getElementById('smart-tags');
+            container.innerHTML = '';
+            
+            appState.analysisResult.smart_tags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'mb-3';
+                
+                const tagColor = getTagColor(tag.type);
+                
+                tagElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge ${tagColor} me-2">${tag.tag}</span>
+                        <small class="text-muted">${Math.round(tag.confidence * 100)}% confidence</small>
+                    </div>
+                `;
+                
+                container.appendChild(tagElement);
+            });
+        }
+
+        function getTagColor(tagType) {
+            switch (tagType) {
+                case 'privacy': return 'badge-danger';
+                case 'category': return 'badge-primary';
+                case 'quality': return 'badge-success';
+                default: return 'badge-secondary';
+            }
+        }
+
+        function renderDataQuality() {
+            const container = document.getElementById('data-quality');
+            const quality = appState.analysisResult.data_quality_assessment;
+            
+            container.innerHTML = `
+                <div class="text-center mb-4">
+                    <div class="display-4 fw-bold ${getQualityScoreColor(quality.overall_score)}">${quality.overall_score}%</div>
+                    <p class="text-muted">Overall Quality Score</p>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small>Completeness</small>
+                        <small class="fw-bold">${quality.completeness.score}%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: ${quality.completeness.score}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small>Consistency</small>
+                        <small class="fw-bold">${quality.consistency.score}%</small>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: ${quality.consistency.score}%"></div>
+                    </div>
+                </div>
+                
+                <h6 class="fw-bold mb-3">Recommendations</h6>
+                ${quality.recommendations.map(rec => `
+                    <div class="alert alert-${rec.priority === 'High' ? 'warning' : 'info'} py-2 px-3 mb-2">
+                        <small><strong>${rec.category}:</strong> ${rec.action}</small>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderETLRecommendations() {
+            const container = document.getElementById('etl-recommendations');
+            container.innerHTML = '';
+            
+            appState.analysisResult.etl_recommendations.forEach(recommendation => {
+                const recCard = document.createElement('div');
+                recCard.className = 'col-md-6 mb-3';
+                
+                const priorityColor = getPriorityColor(recommendation.priority);
+                
+                recCard.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="fw-bold mb-0">${recommendation.category}</h6>
+                                <span class="badge ${priorityColor}">${recommendation.priority}</span>
+                            </div>
+                            
+                            <p class="text-muted mb-3">${recommendation.recommendation}</p>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted fw-bold">Implementation:</small>
+                                <p class="small mb-0 mt-1">${recommendation.implementation}</p>
+                            </div>
+                            
+                            <div>
+                                <small class="text-muted fw-bold">Benefit:</small>
+                                <p class="small mb-0 mt-1 text-success">${recommendation.benefit}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(recCard);
+            });
+        }
+
+        function getPriorityColor(priority) {
+            switch (priority) {
+                case 'Critical': return 'badge-danger';
+                case 'High': return 'badge-warning';
+                case 'Medium': return 'badge-primary';
+                case 'Low': return 'badge-secondary';
+                default: return 'badge-secondary';
+            }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                alert('Please enter a search query.');
+                return;
+            }
+            
+            executeSearch(query);
+        }
+
+        function searchExample(query) {
+            document.getElementById('search-input').value = query;
+            executeSearch(query);
+        }
+
+        function executeSearch(query) {
+            if (!appState.analysisId) {
+                alert('Please run analysis first before searching.');
+                return;
+            }
+            
+            // Send search request to backend
+            fetch('/api/ai-cataloging/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    analysis_id: appState.analysisId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                renderSearchResults(data.results, data.query);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                alert('Search failed: ' + error.message);
+            });
+        }
+
+        function renderSearchResults(results, query) {
+            const container = document.getElementById('search-results');
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-search" style="font-size: 3rem; color: var(--primary-color); opacity: 0.5;"></i>
+                        <h5 class="mt-3 text-muted">No results found</h5>
+                        <p class="text-muted">Try a different search term or browse the column classifications above.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="mb-3">
+                    <h6 class="fw-bold">Search Results for "${query}" (${results.length} found)</h6>
+                </div>
+                ${results.map(result => `
+                    <div class="search-result">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0">${result.column_name}</h6>
+                            <span class="badge badge-primary">${result.semantic_type}</span>
+                        </div>
+                        <p class="text-muted small mb-0">${result.business_meaning}</p>
+                        <div class="mt-2">
+                            <small class="text-muted">Relevance: ${result.relevance_score}/5</small>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function downloadEnhancedDataset() {
+            if (!appState.analysisId) {
+                alert('No analysis results available for download.');
+                return;
+            }
+            
+            // Create download request
+            const downloadRequest = {
+                analysis_id: appState.analysisId
+            };
+            
+            fetch('/api/ai-cataloging/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(downloadRequest)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Download failed');
+            })
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `ai_cataloged_${appState.datasetInfo.filename}`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('Download failed. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

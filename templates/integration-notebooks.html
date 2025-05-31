@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration with Python, R & Jupyter Notebooks - Dataiku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .form-select, .form-control {
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        .badge {
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+        
+        .code-block {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            color: #f8f8f2;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .integration-tabs {
+            border-bottom: 2px solid #E2E8F0;
+            margin-bottom: 30px;
+        }
+        
+        .integration-tabs .nav-link {
+            border: none;
+            border-radius: 12px 12px 0 0;
+            padding: 15px 25px;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+        
+        .integration-tabs .nav-link.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .etl-benefits {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 15px 0;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: #E2E8F0;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 20px;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-diagram-3-fill me-2"></i>
+                Dataiku - Integration Hub
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-primary me-3" id="dataset-info">No dataset loaded</span>
+                <button class="btn btn-outline-secondary btn-sm" onclick="window.close()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 pt-5">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-4">Integration with Python, R & Jupyter Notebooks</h1>
+                <p class="lead mb-4">Seamlessly integrate your ETL workflows with Python, R, and Jupyter environments for advanced data analysis and processing</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-code-square me-2"></i>Python Scripts
+                    </div>
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-bar-chart me-2"></i>R Analytics
+                    </div>
+                    <div class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-journal-code me-2"></i>Jupyter Notebooks
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Information -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-database me-2 text-primary"></i>
+                                Dataset Overview
+                            </h5>
+                            <button class="btn btn-outline-primary btn-sm" id="refresh-data-btn">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                            </button>
+                        </div>
+                        <div class="row" id="dataset-overview">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Filename</h6>
+                                    <p class="fw-bold" id="filename">Loading...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Rows</h6>
+                                    <p class="fw-bold text-primary" id="row-count">0</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Columns</h6>
+                                    <p class="fw-bold text-success" id="column-count">0</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Integration Ready</h6>
+                                    <p class="fw-bold text-warning" id="integration-status">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear me-2 text-primary"></i>
+                            Integration Configuration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="integration-form">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="notebook-type" class="form-label fw-semibold">Notebook Type</label>
+                                    <select class="form-select" id="notebook-type">
+                                        <option value="all">All Integrations (Python + R + Jupyter)</option>
+                                        <option value="python">Python Scripts Only</option>
+                                        <option value="r">R Scripts Only</option>
+                                        <option value="jupyter">Jupyter Notebooks Only</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="analysis-type" class="form-label fw-semibold">Analysis Type</label>
+                                    <select class="form-select" id="analysis-type">
+                                        <option value="exploratory">Exploratory Data Analysis</option>
+                                        <option value="etl">ETL Pipeline Analysis</option>
+                                        <option value="statistical">Statistical Analysis</option>
+                                        <option value="machine-learning">Machine Learning</option>
+                                        <option value="custom">Custom Analysis</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ai-model" class="form-label fw-semibold">AI Model</label>
+                                <select class="form-select" id="ai-model">
+                                    <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                    <option value="gpt-4">GPT-4</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="custom-requirements" class="form-label fw-semibold">Custom Requirements</label>
+                                <textarea class="form-control" id="custom-requirements" rows="3" 
+                                    placeholder="Specify any custom analysis requirements, specific libraries, or ETL considerations..."></textarea>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Select Columns for Integration</label>
+                                <div id="column-selection" class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                    <div class="text-muted text-center py-3">
+                                        <i class="bi bi-hourglass-split"></i>
+                                        Loading columns...
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-rocket-takeoff me-2"></i>
+                                    Generate Integration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-transparent">
+                        <h6 class="mb-0">
+                            <i class="bi bi-lightbulb me-2 text-warning"></i>
+                            Why Use This Integration?
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="etl-benefits">
+                            <h6 class="fw-bold text-success mb-3">ETL Benefits</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <small>Multi-language ETL workflows</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <small>Real-time data processing</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <small>Automated code generation</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <small>Cross-platform compatibility</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <small>Production-ready pipelines</small>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6 class="fw-bold mb-3">How to Use</h6>
+                            <ol class="small">
+                                <li class="mb-2">Select your preferred integration type</li>
+                                <li class="mb-2">Choose columns for analysis</li>
+                                <li class="mb-2">Configure analysis parameters</li>
+                                <li class="mb-2">Generate and download code</li>
+                                <li class="mb-2">Execute in your environment</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="mt-3">Generating Integration...</h5>
+            <p class="text-muted">Creating optimized code for your ETL workflow</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="d-none" id="results-section">
+            <!-- Integration Tabs -->
+            <ul class="nav nav-tabs integration-tabs" id="integration-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+                        <i class="bi bi-eye me-2"></i>Overview
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="python-tab" data-bs-toggle="tab" data-bs-target="#python" type="button" role="tab">
+                        <i class="bi bi-code-square me-2"></i>Python
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="r-tab" data-bs-toggle="tab" data-bs-target="#r" type="button" role="tab">
+                        <i class="bi bi-bar-chart me-2"></i>R
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="jupyter-tab" data-bs-toggle="tab" data-bs-target="#jupyter" type="button" role="tab">
+                        <i class="bi bi-journal-code me-2"></i>Jupyter
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="etl-tab" data-bs-toggle="tab" data-bs-target="#etl" type="button" role="tab">
+                        <i class="bi bi-diagram-3 me-2"></i>ETL Workflow
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="integration-tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5 class="card-title">Integration Summary</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Processing Time</h6>
+                                                <p class="fw-bold text-primary" id="processing-time">0s</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Code Generated</h6>
+                                                <p class="fw-bold text-success" id="code-generated">0 files</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">Languages</h6>
+                                                <p class="fw-bold text-info" id="languages-count">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="text-center">
+                                                <h6 class="text-muted">ETL Ready</h6>
+                                                <p class="fw-bold text-warning" id="etl-ready">Yes</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6 class="fw-bold mb-3">AI-Generated Insights</h6>
+                                    <div id="insights-container">
+                                        <!-- Insights will be populated here -->
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <h6 class="fw-bold mb-3">Quick Actions</h6>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-primary" id="execute-python-btn">
+                                            <i class="bi bi-play-circle me-2"></i>Execute Python
+                                        </button>
+                                        <button class="btn btn-outline-primary" id="download-all-btn">
+                                            <i class="bi bi-download me-2"></i>Download All
+                                        </button>
+                                        <button class="btn btn-outline-secondary" id="view-etl-btn">
+                                            <i class="bi bi-diagram-3 me-2"></i>View ETL Workflow
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold mb-3">Environment Setup</h6>
+                                        <div id="environment-setup">
+                                            <!-- Environment setup will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Python Tab -->
+                <div class="tab-pane fade" id="python" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="bi bi-code-square me-2"></i>Python Integration Code
+                            </h6>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" id="copy-python-btn">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="download-python-btn">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode('python-code')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                                <pre><code id="python-code" class="language-python">
+# Python code will be generated here
+                                </code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- R Tab -->
+                <div class="tab-pane fade" id="r" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>R Integration Code
+                            </h6>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" id="copy-r-btn">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="download-r-btn">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="code-block">
+                                <button class="copy-btn" onclick="copyCode('r-code')">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                                <pre><code id="r-code" class="language-r">
+# R code will be generated here
+                                </code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jupyter Tab -->
+                <div class="tab-pane fade" id="jupyter" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="bi bi-journal-code me-2"></i>Jupyter Notebook
+                            </h6>
+                            <div>
+                                <button class="btn btn-sm btn-primary" id="download-jupyter-btn">
+                                    <i class="bi bi-download me-1"></i>Download .ipynb
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Jupyter Notebook Ready!</strong> 
+                                Download the .ipynb file and open it in your Jupyter environment for interactive analysis.
+                            </div>
+                            <div id="jupyter-preview">
+                                <!-- Jupyter notebook preview will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ETL Workflow Tab -->
+                <div class="tab-pane fade" id="etl" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-diagram-3 me-2"></i>ETL Workflow Integration
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="etl-workflow-content">
+                                <!-- ETL workflow content will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            integrationResult: null,
+            integrationId: null
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            loadDatasetInfo();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session found. Please upload a dataset first.');
+                return;
+            }
+        }
+
+        function setupEventListeners() {
+            // Form submission
+            document.getElementById('integration-form').addEventListener('submit', handleFormSubmission);
+            
+            // Button event listeners
+            document.getElementById('refresh-data-btn').addEventListener('click', loadDatasetInfo);
+            document.getElementById('execute-python-btn').addEventListener('click', executePythonCode);
+            document.getElementById('download-all-btn').addEventListener('click', downloadAllFiles);
+            document.getElementById('download-python-btn').addEventListener('click', () => downloadFile('python'));
+            document.getElementById('download-r-btn').addEventListener('click', () => downloadFile('r'));
+            document.getElementById('download-jupyter-btn').addEventListener('click', () => downloadFile('notebook'));
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading('Loading dataset information...');
+                
+                const response = await fetch(`/api/integration-notebooks/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset info');
+                }
+                
+                appState.datasetInfo = data;
+                updateDatasetDisplay(data);
+                populateColumnSelection(data.columns_info);
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        function updateDatasetDisplay(data) {
+            document.getElementById('filename').textContent = data.filename;
+            document.getElementById('row-count').textContent = data.rows.toLocaleString();
+            document.getElementById('column-count').textContent = data.columns;
+            document.getElementById('integration-status').textContent = 'Ready';
+            document.getElementById('integration-status').className = 'fw-bold text-success';
+            document.getElementById('dataset-info').textContent = `${data.filename} (${data.rows} rows)`;
+        }
+
+        function populateColumnSelection(columns) {
+            const container = document.getElementById('column-selection');
+            container.innerHTML = '';
+            
+            if (!columns || columns.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center py-3">No columns available</div>';
+                return;
+            }
+            
+            // Add select all option
+            const selectAllDiv = document.createElement('div');
+            selectAllDiv.className = 'form-check mb-3 border-bottom pb-2';
+            selectAllDiv.innerHTML = `
+                <input class="form-check-input" type="checkbox" id="select-all-columns">
+                <label class="form-check-label fw-bold" for="select-all-columns">
+                    Select All Columns
+                </label>
+            `;
+            container.appendChild(selectAllDiv);
+            
+            // Add individual columns
+            columns.forEach((column, index) => {
+                const div = document.createElement('div');
+                div.className = 'form-check mb-2';
+                
+                const potentialBadge = column.integration_potential === 'High' ? 'success' : 
+                                      column.integration_potential === 'Medium' ? 'warning' : 'secondary';
+                
+                div.innerHTML = `
+                    <input class="form-check-input column-checkbox" type="checkbox" value="${column.name}" id="column-${index}">
+                    <label class="form-check-label d-flex justify-content-between align-items-center" for="column-${index}">
+                        <span>
+                            <strong>${column.name}</strong>
+                            <small class="text-muted d-block">${column.type} • ${column.unique_count} unique • ${column.missing_pct} missing</small>
+                        </span>
+                        <span class="badge bg-${potentialBadge}">${column.integration_potential}</span>
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+            
+            // Setup select all functionality
+            document.getElementById('select-all-columns').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.column-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+
+        async function handleFormSubmission(event) {
+            event.preventDefault();
+            
+            try {
+                const formData = getFormData();
+                if (!validateFormData(formData)) {
+                    return;
+                }
+                
+                showLoading('Generating integration code...');
+                
+                const response = await fetch('/api/integration-notebooks/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        ...formData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to generate integration');
+                }
+                
+                appState.integrationResult = data;
+                appState.integrationId = data.integration_id;
+                
+                displayResults(data);
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Error generating integration:', error);
+                showError('Failed to generate integration: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        function getFormData() {
+            const selectedColumns = Array.from(document.querySelectorAll('.column-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            return {
+                selected_columns: selectedColumns,
+                notebook_type: document.getElementById('notebook-type').value,
+                analysis_type: document.getElementById('analysis-type').value,
+                model: document.getElementById('ai-model').value,
+                custom_requirements: document.getElementById('custom-requirements').value
+            };
+        }
+
+        function validateFormData(formData) {
+            if (formData.selected_columns.length === 0) {
+                showError('Please select at least one column for integration.');
+                return false;
+            }
+            return true;
+        }
+
+        function displayResults(data) {
+            document.getElementById('results-section').classList.remove('d-none');
+            
+            // Update overview
+            document.getElementById('processing-time').textContent = `${data.processing_time}s`;
+            document.getElementById('code-generated').textContent = getCodeFileCount(data);
+            document.getElementById('languages-count').textContent = getLanguageCount(data);
+            
+            // Display insights
+            displayInsights(data.insights || []);
+            
+            // Display code
+            if (data.notebooks) {
+                if (data.notebooks.python_script) {
+                    document.getElementById('python-code').textContent = data.notebooks.python_script;
+                }
+                if (data.notebooks.r_script) {
+                    document.getElementById('r-code').textContent = data.notebooks.r_script;
+                }
+            }
+            
+            // Display ETL workflow
+            displayETLWorkflow(data.etl_workflow || {});
+            
+            // Display environment setup
+            displayEnvironmentSetup(data.environment_setup || {});
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Highlight code
+            Prism.highlightAll();
+        }
+
+        function displayInsights(insights) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = '';
+            
+            insights.forEach(insight => {
+                const div = document.createElement('div');
+                div.className = 'insight-card';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold mb-0">${insight.title}</h6>
+                        <span class="badge bg-${getPriorityColor(insight.priority)}">${insight.priority}</span>
+                    </div>
+                    <p class="mb-0 text-muted">${insight.description}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function displayETLWorkflow(workflow) {
+            const container = document.getElementById('etl-workflow-content');
+            container.innerHTML = '';
+            
+            if (workflow.stages) {
+                workflow.stages.forEach(stage => {
+                    const div = document.createElement('div');
+                    div.className = 'card mb-3';
+                    div.innerHTML = `
+                        <div class="card-body">
+                            <h6 class="card-title">${stage.name}</h6>
+                            <p class="card-text">${stage.description}</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold">Tools</h6>
+                                    <ul class="list-unstyled">
+                                        ${stage.tools.map(tool => `<li><i class="bi bi-check text-success me-2"></i>${tool}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold">Best Practices</h6>
+                                    <ul class="list-unstyled">
+                                        ${stage.best_practices.map(practice => `<li><i class="bi bi-lightbulb text-warning me-2"></i><small>${practice}</small></li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+
+        function displayEnvironmentSetup(setup) {
+            const container = document.getElementById('environment-setup');
+            container.innerHTML = '';
+            
+            Object.entries(setup).forEach(([env, config]) => {
+                const div = document.createElement('div');
+                div.className = 'mb-3';
+                div.innerHTML = `
+                    <h6 class="fw-bold text-capitalize">${env}</h6>
+                    <div class="code-block">
+                        <pre><code class="language-bash">${config.installation || 'No installation required'}</code></pre>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function executePythonCode() {
+            if (!appState.integrationId) {
+                showError('No integration available to execute.');
+                return;
+            }
+            
+            try {
+                showLoading('Executing Python code...');
+                
+                const response = await fetch('/api/integration-notebooks/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        integration_id: appState.integrationId,
+                        execution_type: 'python'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Execution failed');
+                }
+                
+                showSuccess('Python code executed successfully!');
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Error executing Python code:', error);
+                showError('Failed to execute Python code: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        async function downloadFile(type) {
+            if (!appState.integrationId) {
+                showError('No integration available to download.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/integration-notebooks/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        integration_id: appState.integrationId,
+                        download_type: type
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = getDownloadFilename(type);
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} file downloaded successfully!`);
+                
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                showError('Failed to download file: ' + error.message);
+            }
+        }
+
+        function downloadAllFiles() {
+            ['python', 'r', 'notebook'].forEach(type => {
+                setTimeout(() => downloadFile(type), 500);
+            });
+        }
+
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess('Code copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy code:', err);
+                showError('Failed to copy code to clipboard.');
+            });
+        }
+
+        // Utility functions
+        function showLoading(message = 'Loading...') {
+            const spinner = document.getElementById('loading-spinner');
+            spinner.querySelector('h5').textContent = message;
+            spinner.style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-spinner').style.display = 'none';
+        }
+
+        function showError(message) {
+            // Create and show error alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            // Create and show success alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+            alert.innerHTML = `
+                <i class="bi bi-check-circle me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 3000);
+        }
+
+        function getCodeFileCount(data) {
+            let count = 0;
+            if (data.notebooks) {
+                if (data.notebooks.python_script) count++;
+                if (data.notebooks.r_script) count++;
+                if (data.notebooks.jupyter_notebook) count++;
+            }
+            return `${count} files`;
+        }
+
+        function getLanguageCount(data) {
+            const notebookType = data.notebook_type || 'all';
+            if (notebookType === 'all') return '3';
+            return '1';
+        }
+
+        function getPriorityColor(priority) {
+            switch (priority?.toLowerCase()) {
+                case 'high': return 'danger';
+                case 'medium': return 'warning';
+                case 'low': return 'info';
+                default: return 'secondary';
+            }
+        }
+
+        function getDownloadFilename(type) {
+            const timestamp = new Date().toISOString().slice(0, 10);
+            switch (type) {
+                case 'python': return `integration_${timestamp}.py`;
+                case 'r': return `integration_${timestamp}.R`;
+                case 'notebook': return `integration_${timestamp}.ipynb`;
+                default: return `integration_${timestamp}.txt`;
+            }
+        }
+    </script>
+</body>
+</html>

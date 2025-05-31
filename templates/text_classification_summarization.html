@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Classification & Summarization - Dataiku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+        
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .form-select, .form-control {
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus, .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        .badge {
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+        
+        .table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #E2E8F0;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            border-radius: 4px;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .spinner-border {
+            width: 4rem;
+            height: 4rem;
+            color: var(--primary-color);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .etl-benefit-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+            border-left: 4px solid var(--success-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4>Processing your text data...</h4>
+            <p class="text-muted">This will take less than 5 seconds</p>
+            <div class="progress mt-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3">Text Classification & Summarization</h1>
+                    <p class="lead mb-4">Automatically categorize and summarize text data using advanced AI techniques for enhanced ETL workflows</p>
+                    <div class="d-flex gap-3">
+                        <span class="badge bg-light text-primary px-3 py-2">
+                            <i class="bi bi-lightning-charge me-1"></i>
+                            Fast Processing
+                        </span>
+                        <span class="badge bg-light text-primary px-3 py-2">
+                            <i class="bi bi-robot me-1"></i>
+                            AI-Powered
+                        </span>
+                        <span class="badge bg-light text-primary px-3 py-2">
+                            <i class="bi bi-download me-1"></i>
+                            Export Ready
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="bi bi-chat-left-text" style="font-size: 8rem; opacity: 0.3;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Configuration Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <h4 class="mb-0">
+                            <i class="bi bi-gear-fill text-primary me-2"></i>
+                            Configuration
+                        </h4>
+                        <p class="text-muted mb-0">Configure your text analysis parameters</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="analysisForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="textColumn" class="form-label fw-semibold">Text Column</label>
+                                    <select class="form-select" id="textColumn" required>
+                                        <option value="">Select text column...</option>
+                                    </select>
+                                    <div class="form-text">Choose the column containing text data to analyze</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="operationType" class="form-label fw-semibold">Operation Type</label>
+                                    <select class="form-select" id="operationType">
+                                        <option value="both">Classification & Summarization</option>
+                                        <option value="classification">Classification Only</option>
+                                        <option value="summarization">Summarization Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="sampleSize" class="form-label fw-semibold">Sample Size</label>
+                                    <select class="form-select" id="sampleSize">
+                                        <option value="20">20 (Ultra Fast)</option>
+                                        <option value="50" selected>50 (Fast)</option>
+                                        <option value="100">100 (Standard)</option>
+                                    </select>
+                                    <div class="form-text">Smaller samples process faster</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="classificationCategories" class="form-label fw-semibold">Classification Categories</label>
+                                    <input type="text" class="form-control" id="classificationCategories" 
+                                           value="positive,negative,neutral" placeholder="Enter categories separated by commas">
+                                    <div class="form-text">Customize categories for classification</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="bi bi-play-circle me-2"></i>
+                                    Start Analysis
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="d-none">
+            <!-- Metrics Row -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="processedCount">0</div>
+                        <div class="text-muted">Texts Processed</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="processingTime">0s</div>
+                        <div class="text-muted">Processing Time</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgConfidence">0%</div>
+                        <div class="text-muted">Avg Confidence</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value" id="compressionRatio">0%</div>
+                        <div class="text-muted">Compression</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-transparent border-0 pt-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="mb-0">
+                                        <i class="bi bi-table text-primary me-2"></i>
+                                        Analysis Results
+                                    </h4>
+                                    <p class="text-muted mb-0">Detailed results of text analysis</p>
+                                </div>
+                                <button class="btn btn-outline-primary" id="downloadBtn">
+                                    <i class="bi bi-download me-2"></i>
+                                    Download Results
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="resultsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Text Sample</th>
+                                            <th>Category</th>
+                                            <th>Confidence</th>
+                                            <th>Summary</th>
+                                            <th>Method</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent border-0 pt-4">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb text-warning me-2"></i>
+                                AI Insights
+                            </h5>
+                        </div>
+                        <div class="card-body" id="insightsContainer">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent border-0 pt-4">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear text-success me-2"></i>
+                                ETL Benefits
+                            </h5>
+                        </div>
+                        <div class="card-body" id="etlBenefitsContainer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETL Usage Guide -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-transparent border-0 pt-4">
+                        <h4 class="mb-0">
+                            <i class="bi bi-book text-info me-2"></i>
+                            Why Use Text Classification & Summarization in ETL?
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-primary mb-3">Key Use Cases:</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Automatically categorize emails, reviews, support tickets</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Train models to label text based on sentiment, topic, or intent</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Generate concise summaries of long documents</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Reduce manual effort in organizing large text volumes</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Extract key insights for faster decision-making</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-primary mb-3">ETL Integration Benefits:</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>Real-time text processing in data pipelines</li>
+                                    <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>Automated content organization and tagging</li>
+                                    <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>Enhanced data quality through text standardization</li>
+                                    <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>Improved analytics with structured text insights</li>
+                                    <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i>Scalable processing for growing data volumes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentAnalysisId = null;
+        let sessionId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get session ID from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!sessionId) {
+                alert('No session found. Please upload a dataset first.');
+                window.close();
+                return;
+            }
+
+            // Load dataset info
+            loadDatasetInfo();
+
+            // Setup form submission
+            document.getElementById('analysisForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('downloadBtn').addEventListener('click', downloadResults);
+        });
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/text-classification-summarization/dataset-info?session_id=${sessionId}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset info');
+                }
+
+                // Populate text columns
+                const textColumnSelect = document.getElementById('textColumn');
+                textColumnSelect.innerHTML = '<option value="">Select text column...</option>';
+                
+                data.columns_info.forEach(col => {
+                    if (col.is_text_suitable) {
+                        const option = document.createElement('option');
+                        option.value = col.name;
+                        option.textContent = `${col.name} (${col.unique_count} unique values)`;
+                        textColumnSelect.appendChild(option);
+                    }
+                });
+
+                if (textColumnSelect.children.length === 1) {
+                    textColumnSelect.innerHTML = '<option value="">No suitable text columns found</option>';
+                }
+
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                alert('Error loading dataset: ' + error.message);
+            }
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                session_id: sessionId,
+                text_column: document.getElementById('textColumn').value,
+                operation_type: document.getElementById('operationType').value,
+                sample_size: document.getElementById('sampleSize').value,
+                classification_categories: document.getElementById('classificationCategories').value,
+                model: 'gpt-4o'
+            };
+
+            if (!formData.text_column) {
+                alert('Please select a text column');
+                return;
+            }
+
+            // Show loading
+            showLoading(true);
+
+            try {
+                const response = await fetch('/api/text-classification-summarization/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+
+                // Store analysis ID
+                currentAnalysisId = result.analysis_id;
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(result) {
+            // Show results section
+            document.getElementById('resultsSection').classList.remove('d-none');
+
+            // Update metrics
+            document.getElementById('processedCount').textContent = result.processed_texts || 0;
+            document.getElementById('processingTime').textContent = `${result.processing_time || 0}s`;
+            
+            // Calculate average confidence
+            const avgConf = result.metrics?.classification?.avg_confidence || 0.5;
+            document.getElementById('avgConfidence').textContent = `${(avgConf * 100).toFixed(0)}%`;
+            
+            // Calculate compression ratio
+            const avgComp = result.metrics?.summarization?.avg_compression || 0.5;
+            document.getElementById('compressionRatio').textContent = `${(avgComp * 100).toFixed(0)}%`;
+
+            // Populate results table
+            const tableBody = document.getElementById('resultsTableBody');
+            tableBody.innerHTML = '';
+
+            result.results.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-truncate" style="max-width: 200px;" title="${item.text || ''}">${item.text || 'N/A'}</td>
+                    <td>
+                        <span class="badge bg-primary">${item.category || 'N/A'}</span>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" style="width: ${(item.confidence || 0.5) * 100}%">
+                                ${((item.confidence || 0.5) * 100).toFixed(0)}%
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-truncate" style="max-width: 250px;" title="${item.summary || ''}">${item.summary || 'N/A'}</td>
+                    <td><span class="badge bg-secondary">${item.method || 'N/A'}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Display insights
+            displayInsights(result.insights || []);
+            displayETLBenefits(result.etl_benefits || []);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayInsights(insights) {
+            const container = document.getElementById('insightsContainer');
+            container.innerHTML = '';
+
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = 'insight-card';
+                insightCard.innerHTML = `
+                    <h6 class="fw-bold text-primary mb-2">${insight.title}</h6>
+                    <p class="mb-1">${insight.description}</p>
+                    <small class="text-muted">Category: ${insight.category}</small>
+                `;
+                container.appendChild(insightCard);
+            });
+        }
+
+        function displayETLBenefits(benefits) {
+            const container = document.getElementById('etlBenefitsContainer');
+            container.innerHTML = '';
+
+            benefits.forEach(benefit => {
+                const benefitCard = document.createElement('div');
+                benefitCard.className = 'etl-benefit-card';
+                benefitCard.innerHTML = `
+                    <h6 class="fw-bold text-success mb-2">${benefit.benefit}</h6>
+                    <p class="mb-1">${benefit.description}</p>
+                    <small class="text-muted">Impact: ${benefit.impact}</small>
+                `;
+                container.appendChild(benefitCard);
+            });
+        }
+
+        async function downloadResults() {
+            if (!currentAnalysisId) {
+                alert('No analysis results to download');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/text-classification-summarization/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: currentAnalysisId
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `text_analysis_results_${currentAnalysisId.substring(0, 8)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>

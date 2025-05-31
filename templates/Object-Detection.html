@@ -1,0 +1,974 @@
+&lt;!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection - Data Analysis Platform</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --light-bg: #f9fafb;
+            --dark-text: #1f2937;
+            --light-text: #f3f4f6;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-text);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--dark-text);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-text);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .align-center {
+            align-items: center;
+        }
+
+        .gap-4 {
+            gap: 16px;
+        }
+
+        .mt-4 {
+            margin-top: 16px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .col-span-2 {
+            grid-column: span 2;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: var(--error-color);
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: var(--success-color);
+            border: 1px solid #a7f3d0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 400px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .detection-box {
+            position: absolute;
+            border: 2px solid var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        .detection-label {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 2px;
+            margin-top: -22px;
+            white-space: nowrap;
+        }
+
+        .image-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .settings-panel {
+            background-color: #f3f4f6;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+        }
+
+        .slider-value {
+            margin-top: 5px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .col-span-2 {
+                grid-column: span 1;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Data Analysis Platform</div>
+            <div class="nav-links">
+                <a href="index.html">Dashboard</a>
+                <a href="#">Projects</a>
+                <a href="#">Models</a>
+                <a href="#">Settings</a>
+            </div>
+        </header>
+
+        <h1 class="page-title">Object Detection</h1>
+
+        <div class="card">
+            <h2 class="card-title">Upload Data</h2>
+            <form id="uploadForm">
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="dataFile">Upload Image or Dataset</label>
+                        <input type="file" id="dataFile" accept=".jpg,.jpeg,.png,.csv,.xlsx" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modelSelect">Select Model</label>
+                        <select id="modelSelect" required>
+                            <option value="azure_openai_default">Azure OpenAI (Default)</option>
+                            <option value="azure_openai_enhanced">Azure OpenAI (Enhanced)</option>
+                            <option value="custom_model">Custom Model</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <div class="settings-panel">
+                            <h3 class="mb-4">Detection Settings</h3>
+                            <div class="form-group">
+                                <label for="confidenceThreshold">Confidence Threshold</label>
+                                <div class="slider-container">
+                                    <input type="range" id="confidenceThreshold" min="0" max="100" value="50" class="slider">
+                                    <div class="slider-value">50%</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Detection Options</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="showLabels" checked>
+                                        <label for="showLabels">Show Labels</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="showConfidence" checked>
+                                        <label for="showConfidence">Show Confidence</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="enhancedDetection">
+                                        <label for="enhancedDetection">Enhanced Detection</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-4">
+                    <button type="button" class="btn btn-secondary" id="resetBtn">Reset</button>
+                    <button type="submit" class="btn" id="detectBtn">Detect Objects</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Processing your data. This may take a moment...</p>
+        </div>
+
+        <div id="errorAlert" class="alert alert-error" style="display: none;"></div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="card">
+                <h2 class="card-title">Detection Results</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="visualTab">Visual Results</div>
+                    <div class="tab" data-tab="dataTab">Data Table</div>
+                    <div class="tab" data-tab="statsTab">Statistics</div>
+                </div>
+                
+                <div class="tab-content active" id="visualTab">
+                    <div class="image-container" id="imageContainer">
+                        <img id="previewImage" class="image-preview" src="/placeholder.svg" alt="Preview">
+                        &lt;!-- Detection boxes will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="dataTab">
+                    <div class="data-table-container">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>Object ID</th>
+                                    <th>Class</th>
+                                    <th>Confidence</th>
+                                    <th>Bounding Box</th>
+                                    <th>Area</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                &lt;!-- Results will be added here dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="statsTab">
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-title">Total Objects</div>
+                            <div class="stat-value" id="totalObjects">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Unique Classes</div>
+                            <div class="stat-value" id="uniqueClasses">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">Avg. Confidence</div>
+                            <div class="stat-value" id="avgConfidence">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title">Class Distribution</h3>
+                        <div id="classDistribution">
+                            &lt;!-- Class distribution will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-4">
+                    <button class="btn btn-secondary" id="newDetectionBtn">New Detection</button>
+                    <button class="btn btn-success" id="downloadBtn">Download Results</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const uploadForm = document.getElementById('uploadForm');
+            const dataFile = document.getElementById('dataFile');
+            const modelSelect = document.getElementById('modelSelect');
+            const confidenceThreshold = document.getElementById('confidenceThreshold');
+            const confidenceValue = document.querySelector('.slider-value');
+            const detectBtn = document.getElementById('detectBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const errorAlert = document.getElementById('errorAlert');
+            const previewImage = document.getElementById('previewImage');
+            const imageContainer = document.getElementById('imageContainer');
+            const resultsTableBody = document.getElementById('resultsTableBody');
+            const newDetectionBtn = document.getElementById('newDetectionBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const totalObjects = document.getElementById('totalObjects');
+            const uniqueClasses = document.getElementById('uniqueClasses');
+            const avgConfidence = document.getElementById('avgConfidence');
+            const classDistribution = document.getElementById('classDistribution');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Update confidence threshold value display
+            confidenceThreshold.addEventListener('input', function() {
+                confidenceValue.textContent = this.value + '%';
+            });
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Reset form
+            resetBtn.addEventListener('click', function() {
+                uploadForm.reset();
+                confidenceValue.textContent = '50%';
+                hideResults();
+                hideError();
+            });
+            
+            // New detection button
+            newDetectionBtn.addEventListener('click', function() {
+                hideResults();
+                hideError();
+                window.scrollTo(0, 0);
+            });
+            
+            // Form submission
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate file input
+                if (!dataFile.files || dataFile.files.length === 0) {
+                    showError('Please select a file to upload.');
+                    return;
+                }
+                
+                const file = dataFile.files[0];
+                const fileType = file.type;
+                
+                // Show loading indicator
+                showLoading();
+                hideError();
+                
+                // Check if it's an image file
+                if (fileType.startsWith('image/')) {
+                    // For image files, we'll handle object detection
+                    handleImageDetection(file);
+                } else if (fileType === 'text/csv' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                    // For CSV or Excel files, we'll handle tabular data
+                    handleTabularData(file);
+                } else {
+                    hideLoading();
+                    showError('Unsupported file type. Please upload an image, CSV, or Excel file.');
+                }
+            });
+            
+            // Download results
+            downloadBtn.addEventListener('click', function() {
+                // Create a CSV string from the results table
+                let csvContent = "data:text/csv;charset=utf-8,";
+                
+                // Add headers
+                const headers = Array.from(document.querySelectorAll('#resultsTable th'))
+                    .map(th => th.textContent)
+                    .join(',');
+                csvContent += headers + '\r\n';
+                
+                // Add rows
+                const rows = Array.from(document.querySelectorAll('#resultsTable tbody tr'));
+                rows.forEach(row => {
+                    const rowData = Array.from(row.querySelectorAll('td'))
+                        .map(td => `"${td.textContent}"`)
+                        .join(',');
+                    csvContent += rowData + '\r\n';
+                });
+                
+                // Create download link
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'object_detection_results.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+            
+            // Handle image object detection
+            function handleImageDetection(file) {
+                // Create a FileReader to read the image
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    // Set the preview image source
+                    previewImage.src = e.target.result;
+                    
+                    // Simulate API call to backend
+                    setTimeout(() => {
+                        // In a real application, this would be an actual API call
+                        fetch('/api/object-detection', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                imageData: e.target.result,
+                                model: modelSelect.value,
+                                confidenceThreshold: confidenceThreshold.value,
+                                showLabels: document.getElementById('showLabels').checked,
+                                showConfidence: document.getElementById('showConfidence').checked,
+                                enhancedDetection: document.getElementById('enhancedDetection').checked
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Process the detection results
+                            processDetectionResults(data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // For demo purposes, we'll simulate successful detection
+                            simulateDetectionResults();
+                        })
+                        .finally(() => {
+                            hideLoading();
+                            showResults();
+                        });
+                    }, 2000); // Simulate 2-second API call
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Handle tabular data
+            function handleTabularData(file) {
+                // In a real application, this would parse the CSV/Excel file
+                // For demo purposes, we'll simulate results after a delay
+                setTimeout(() => {
+                    simulateTabularResults();
+                    hideLoading();
+                    showResults();
+                }, 2000);
+            }
+            
+            // Process detection results from API
+            function processDetectionResults(data) {
+                // Clear previous results
+                clearDetectionBoxes();
+                resultsTableBody.innerHTML = '';
+                
+                // Add detection boxes to the image
+                data.detections.forEach((detection, index) => {
+                    addDetectionBox(detection, index);
+                    addDetectionRow(detection, index);
+                });
+                
+                // Update statistics
+                updateStatistics(data.detections);
+            }
+            
+            // Simulate detection results for demo purposes
+            function simulateDetectionResults() {
+                // Clear previous results
+                clearDetectionBoxes();
+                resultsTableBody.innerHTML = '';
+                
+                // Get image dimensions
+                const imgWidth = previewImage.naturalWidth;
+                const imgHeight = previewImage.naturalHeight;
+                
+                // Simulate some detection results
+                const detections = [
+                    {
+                        id: 1,
+                        class: 'Person',
+                        confidence: 0.92,
+                        bbox: {
+                            x: 0.2 * imgWidth,
+                            y: 0.3 * imgHeight,
+                            width: 0.3 * imgWidth,
+                            height: 0.5 * imgHeight
+                        }
+                    },
+                    {
+                        id: 2,
+                        class: 'Car',
+                        confidence: 0.87,
+                        bbox: {
+                            x: 0.6 * imgWidth,
+                            y: 0.4 * imgHeight,
+                            width: 0.25 * imgWidth,
+                            height: 0.2 * imgHeight
+                        }
+                    },
+                    {
+                        id: 3,
+                        class: 'Dog',
+                        confidence: 0.78,
+                        bbox: {
+                            x: 0.1 * imgWidth,
+                            y: 0.7 * imgHeight,
+                            width: 0.15 * imgWidth,
+                            height: 0.2 * imgHeight
+                        }
+                    }
+                ];
+                
+                // Add detection boxes and table rows
+                detections.forEach((detection, index) => {
+                    addDetectionBox(detection, index);
+                    addDetectionRow(detection, index);
+                });
+                
+                // Update statistics
+                updateStatistics(detections);
+            }
+            
+            // Simulate tabular results for demo purposes
+            function simulateTabularResults() {
+                // Hide the image preview for tabular data
+                previewImage.style.display = 'none';
+                
+                // Clear previous results
+                resultsTableBody.innerHTML = '';
+                
+                // Simulate some tabular detection results
+                const detections = [
+                    {
+                        id: 1,
+                        class: 'Anomaly',
+                        confidence: 0.95,
+                        location: 'Row 12, Column B',
+                        value: '1452.67'
+                    },
+                    {
+                        id: 2,
+                        class: 'Outlier',
+                        confidence: 0.89,
+                        location: 'Row 45, Column D',
+                        value: '-23.5'
+                    },
+                    {
+                        id: 3,
+                        class: 'Missing Value',
+                        confidence: 0.99,
+                        location: 'Row 78, Column C',
+                        value: 'N/A'
+                    },
+                    {
+                        id: 4,
+                        class: 'Duplicate',
+                        confidence: 0.92,
+                        location: 'Rows 103-104',
+                        value: 'Multiple'
+                    }
+                ];
+                
+                // Add table rows for tabular data
+                detections.forEach((detection, index) => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${detection.id}</td>
+                        <td>${detection.class}</td>
+                        <td>${(detection.confidence * 100).toFixed(1)}%</td>
+                        <td>${detection.location}</td>
+                        <td>${detection.value}</td>
+                    `;
+                    
+                    resultsTableBody.appendChild(row);
+                });
+                
+                // Update statistics
+                updateStatistics(detections);
+                
+                // Switch to data tab for tabular data
+                document.querySelector('[data-tab="dataTab"]').click();
+            }
+            
+            // Add detection box to the image
+            function addDetectionBox(detection, index) {
+                const showLabels = document.getElementById('showLabels').checked;
+                const showConfidence = document.getElementById('showConfidence').checked;
+                
+                const box = document.createElement('div');
+                box.className = 'detection-box';
+                box.style.left = `${detection.bbox.x}px`;
+                box.style.top = `${detection.bbox.y}px`;
+                box.style.width = `${detection.bbox.width}px`;
+                box.style.height = `${detection.bbox.height}px`;
+                
+                if (showLabels) {
+                    const label = document.createElement('div');
+                    label.className = 'detection-label';
+                    
+                    let labelText = detection.class;
+                    if (showConfidence) {
+                        labelText += ` (${(detection.confidence * 100).toFixed(0)}%)`;
+                    }
+                    
+                    label.textContent = labelText;
+                    box.appendChild(label);
+                }
+                
+                imageContainer.appendChild(box);
+            }
+            
+            // Add detection row to the results table
+            function addDetectionRow(detection, index) {
+                const row = document.createElement('tr');
+                
+                // Calculate area
+                const area = detection.bbox ? (detection.bbox.width * detection.bbox.height).toFixed(0) : 'N/A';
+                
+                // Format bounding box
+                const bbox = detection.bbox ? 
+                    `[${detection.bbox.x.toFixed(0)}, ${detection.bbox.y.toFixed(0)}, ${detection.bbox.width.toFixed(0)}, ${detection.bbox.height.toFixed(0)}]` : 
+                    detection.location || 'N/A';
+                
+                row.innerHTML = `
+                    <td>${detection.id}</td>
+                    <td>${detection.class}</td>
+                    <td>${(detection.confidence * 100).toFixed(1)}%</td>
+                    <td>${bbox}</td>
+                    <td>${area}</td>
+                `;
+                
+                resultsTableBody.appendChild(row);
+            }
+            
+            // Update statistics based on detections
+            function updateStatistics(detections) {
+                // Total objects
+                totalObjects.textContent = detections.length;
+                
+                // Unique classes
+                const classes = new Set(detections.map(d => d.class));
+                uniqueClasses.textContent = classes.size;
+                
+                // Average confidence
+                const avgConf = detections.reduce((sum, d) => sum + d.confidence, 0) / detections.length;
+                avgConfidence.textContent = (avgConf * 100).toFixed(1) + '%';
+                
+                // Class distribution
+                const classCount = {};
+                detections.forEach(d => {
+                    if (!classCount[d.class]) {
+                        classCount[d.class] = 0;
+                    }
+                    classCount[d.class]++;
+                });
+                
+                // Create class distribution HTML
+                classDistribution.innerHTML = '';
+                Object.entries(classCount).forEach(([className, count]) => {
+                    const percentage = (count / detections.length * 100).toFixed(1);
+                    
+                    const classItem = document.createElement('div');
+                    classItem.className = 'mb-4';
+                    classItem.innerHTML = `
+                        <div class="flex justify-between mb-4">
+                            <span>${className}</span>
+                            <span>${count} (${percentage}%)</span>
+                        </div>
+                        <div style="background-color: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background-color: var(--primary-color); height: 100%; width: ${percentage}%;"></div>
+                        </div>
+                    `;
+                    
+                    classDistribution.appendChild(classItem);
+                });
+            }
+            
+            // Clear detection boxes
+            function clearDetectionBoxes() {
+                const boxes = document.querySelectorAll('.detection-box');
+                boxes.forEach(box => box.remove());
+            }
+            
+            // Show loading indicator
+            function showLoading() {
+                loadingIndicator.style.display = 'block';
+            }
+            
+            // Hide loading indicator
+            function hideLoading() {
+                loadingIndicator.style.display = 'none';
+            }
+            
+            // Show results container
+            function showResults() {
+                resultsContainer.style.display = 'block';
+            }
+            
+            // Hide results container
+            function hideResults() {
+                resultsContainer.style.display = 'none';
+                previewImage.style.display = 'block';
+                previewImage.src = '';
+                clearDetectionBoxes();
+            }
+            
+            // Show error message
+            function showError(message) {
+                errorAlert.textContent = message;
+                errorAlert.style.display = 'block';
+            }
+            
+            // Hide error message
+            function hideError() {
+                errorAlert.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

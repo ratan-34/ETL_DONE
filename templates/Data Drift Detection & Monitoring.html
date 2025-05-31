@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Drift Detection & Monitoring - Dataiku Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --info-color: #06B6D4;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            --gradient-danger: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+
+        .header h1 {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748B;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Card Styles */
+        .card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+            padding: 20px 25px;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* Form Styles */
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #FFFFFF;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.1);
+            background: #FFFFFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #E2E8F0;
+            color: var(--dark-color);
+            background: transparent;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Column Selection */
+        .column-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #FFFFFF;
+        }
+
+        .column-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .column-item:hover {
+            background: rgba(51, 102, 255, 0.05);
+        }
+
+        .column-item.selected {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(51, 102, 255, 0.3);
+        }
+
+        /* Results Styles */
+        .drift-result {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid;
+        }
+
+        .drift-result.no-drift {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+            border-left-color: var(--success-color);
+        }
+
+        .drift-result.low-drift {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%);
+            border-left-color: var(--warning-color);
+        }
+
+        .drift-result.medium-drift {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            border-left-color: var(--warning-color);
+        }
+
+        .drift-result.high-drift {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+            border-left-color: var(--danger-color);
+        }
+
+        /* Progress Bar */
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: #E2E8F0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.6s ease;
+        }
+
+        /* Loading Spinner */
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner-border {
+            width: 4rem;
+            height: 4rem;
+            border-width: 0.3em;
+            color: var(--primary-color);
+        }
+
+        /* Visualization Container */
+        .visualization-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .visualization-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Insights */
+        .insight-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insight-card.high-severity {
+            border-left: 5px solid var(--danger-color);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.02) 0%, rgba(220, 38, 38, 0.02) 100%);
+        }
+
+        .insight-card.medium-severity {
+            border-left: 5px solid var(--warning-color);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.02) 0%, rgba(217, 119, 6, 0.02) 100%);
+        }
+
+        .insight-card.low-severity {
+            border-left: 5px solid var(--success-color);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(5, 150, 105, 0.02) 100%);
+        }
+
+        /* Badges */
+        .badge {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+
+        .badge.bg-warning {
+            background: var(--gradient-warning) !important;
+        }
+
+        .badge.bg-danger {
+            background: var(--gradient-danger) !important;
+        }
+
+        /* Instructions Section */
+        .instructions {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.02) 0%, rgba(139, 92, 246, 0.02) 100%);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .instructions h4 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .instructions li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .instructions li:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card-body {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-in-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="animate__animated animate__fadeInDown">
+                        <i class="bi bi-graph-up me-3"></i>
+                        Data Drift Detection & Monitoring
+                    </h1>
+                    <p class="animate__animated animate__fadeInUp animate__delay-1s">
+                        Advanced statistical analysis and AI-powered insights for detecting data distribution changes
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-outline-secondary" onclick="window.close()">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dataset Information -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-database me-2"></i>
+                            Dataset Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="dataset-info">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Dataset</h6>
+                                    <p class="fw-bold" id="dataset-filename">Loading...</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Total Rows</h6>
+                                    <p class="fw-bold" id="dataset-rows">-</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Total Columns</h6>
+                                    <p class="fw-bold" id="dataset-columns">-</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h6 class="text-muted">Session ID</h6>
+                                    <p class="fw-bold text-truncate" id="session-id">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card animate__animated animate__fadeIn animate__delay-1s">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear me-2"></i>
+                            Drift Detection Configuration
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="drift-analysis-form">
+                            <div class="row">
+                                <!-- Column Selection -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="bi bi-list-check me-2"></i>
+                                        Select Columns for Analysis
+                                    </label>
+                                    <div class="column-selector" id="column-selector">
+                                        <div class="text-center text-muted">
+                                            <i class="bi bi-hourglass-split"></i>
+                                            Loading columns...
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Select columns to analyze for data drift</small>
+                                </div>
+
+                                <!-- Configuration Options -->
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label for="model-select" class="form-label">
+                                                <i class="bi bi-cpu me-2"></i>
+                                                AI Model
+                                            </label>
+                                            <select class="form-select" id="model-select">
+                                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                                <option value="gpt-4">GPT-4</option>
+                                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 mb-3">
+                                            <label for="split-method" class="form-label">
+                                                <i class="bi bi-scissors me-2"></i>
+                                                Data Split Method
+                                            </label>
+                                            <select class="form-select" id="split-method">
+                                                <option value="temporal">Temporal Split (Recommended)</option>
+                                                <option value="random">Random Split</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label for="split-ratio" class="form-label">
+                                                <i class="bi bi-pie-chart me-2"></i>
+                                                Reference Ratio
+                                            </label>
+                                            <select class="form-select" id="split-ratio">
+                                                <option value="0.7">70% Reference</option>
+                                                <option value="0.6">60% Reference</option>
+                                                <option value="0.8">80% Reference</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-6 mb-3">
+                                            <label for="drift-threshold" class="form-label">
+                                                <i class="bi bi-speedometer2 me-2"></i>
+                                                Drift Threshold
+                                            </label>
+                                            <select class="form-select" id="drift-threshold">
+                                                <option value="0.05">0.05 (Standard)</option>
+                                                <option value="0.01">0.01 (Strict)</option>
+                                                <option value="0.1">0.1 (Relaxed)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="bi bi-play-circle me-2"></i>
+                                        Start Drift Analysis
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Container -->
+        <div class="loading-container" id="loading-container">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h4 class="mt-4">Analyzing Data Drift...</h4>
+            <p class="text-muted">This may take a few moments while we analyze your data distributions</p>
+            <div class="progress mt-3" style="width: 300px; margin: 0 auto;">
+                <div class="progress-bar" role="progressbar" style="width: 0%" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results-container" style="display: none;">
+            <!-- Overall Results -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-clipboard-data me-2"></i>
+                                Overall Drift Analysis Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Overall Drift Score</h6>
+                                    <h3 class="fw-bold" id="overall-drift-score">-</h3>
+                                    <span class="badge" id="drift-status-badge">-</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Columns Analyzed</h6>
+                                    <h3 class="fw-bold" id="columns-analyzed">-</h3>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Drift Detected</h6>
+                                    <h3 class="fw-bold" id="drift-detected-count">-</h3>
+                                </div>
+                                <div class="col-md-3">
+                                    <h6 class="text-muted">Processing Time</h6>
+                                    <h3 class="fw-bold" id="processing-time">-</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column Results -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bar-chart me-2"></i>
+                                Column-wise Drift Analysis
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="column-results">
+                                <!-- Column results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizations -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-graph-up me-2"></i>
+                                Distribution Comparisons
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="visualizations-container">
+                                <!-- Visualizations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                AI-Powered Insights & Recommendations
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="ai-insights-container">
+                                <!-- AI insights will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Actionable Recommendations
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recommendations-container">
+                                <!-- Recommendations will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card fade-in">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-download me-2"></i>
+                                Export Results
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <p class="text-muted mb-3">Download your enhanced dataset with drift indicators and analysis results</p>
+                            <button class="btn btn-success btn-lg" id="download-btn" disabled>
+                                <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                                Download Enhanced Dataset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="instructions animate__animated animate__fadeIn animate__delay-2s">
+            <h4>
+                <i class="bi bi-info-circle me-2"></i>
+                Why Use Data Drift Detection in ETL?
+            </h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">Key Benefits:</h6>
+                    <ul>
+                        <li><strong>Early Warning System:</strong> Detect changes in data patterns before they impact downstream processes</li>
+                        <li><strong>Model Performance:</strong> Maintain ML model accuracy by identifying when retraining is needed</li>
+                        <li><strong>Data Quality Assurance:</strong> Ensure consistent data quality across different time periods</li>
+                        <li><strong>Business Intelligence:</strong> Understand how your data evolves over time</li>
+                        <li><strong>Automated Monitoring:</strong> Set up alerts for significant distribution changes</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-primary mb-3">How to Use:</h6>
+                    <ul>
+                        <li><strong>Select Relevant Columns:</strong> Choose columns that are critical for your analysis</li>
+                        <li><strong>Choose Split Method:</strong> Temporal for time-series data, Random for general analysis</li>
+                        <li><strong>Set Threshold:</strong> Lower values detect smaller changes, higher values for major shifts</li>
+                        <li><strong>Review Results:</strong> Analyze statistical tests and AI insights</li>
+                        <li><strong>Take Action:</strong> Implement recommendations to address detected drift</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-light rounded">
+                <h6 class="text-info mb-2">
+                    <i class="bi bi-gear me-2"></i>
+                    ETL Integration Tips:
+                </h6>
+                <p class="mb-0 small">
+                    Integrate drift detection into your ETL pipeline by scheduling regular analyses, 
+                    setting up automated alerts, and using the results to trigger data validation rules 
+                    or model retraining workflows. This ensures your data processing remains robust and reliable.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            analysisResult: null,
+            driftId: null
+        };
+
+        // DOM elements
+        const elements = {
+            datasetFilename: document.getElementById('dataset-filename'),
+            datasetRows: document.getElementById('dataset-rows'),
+            datasetColumns: document.getElementById('dataset-columns'),
+            sessionIdElement: document.getElementById('session-id'),
+            columnSelector: document.getElementById('column-selector'),
+            analysisForm: document.getElementById('drift-analysis-form'),
+            loadingContainer: document.getElementById('loading-container'),
+            resultsContainer: document.getElementById('results-container'),
+            progressBar: document.getElementById('progress-bar'),
+            downloadBtn: document.getElementById('download-btn')
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session found. Please upload a dataset first.');
+                return;
+            }
+
+            elements.sessionIdElement.textContent = appState.sessionId.substring(0, 8) + '...';
+            
+            // Load dataset information
+            loadDatasetInfo();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Form submission
+            elements.analysisForm.addEventListener('submit', handleAnalysisSubmit);
+            
+            // Download button
+            elements.downloadBtn.addEventListener('click', handleDownload);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading('Loading dataset information...');
+                
+                const response = await fetch(`/api/data-drift/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset information');
+                }
+                
+                appState.datasetInfo = data;
+                updateDatasetInfo(data);
+                renderColumnSelector(data.columns_info);
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateDatasetInfo(data) {
+            elements.datasetFilename.textContent = data.filename;
+            elements.datasetRows.textContent = data.rows.toLocaleString();
+            elements.datasetColumns.textContent = data.columns.toLocaleString();
+        }
+
+        function renderColumnSelector(columns) {
+            elements.columnSelector.innerHTML = '';
+            
+            columns.forEach(column => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.setAttribute('data-column', column.name);
+                
+                const suitabilityIcon = column.drift_suitable ? 
+                    '<i class="bi bi-check-circle text-success me-2"></i>' : 
+                    '<i class="bi bi-x-circle text-danger me-2"></i>';
+                
+                columnItem.innerHTML = `
+                    <input type="checkbox" class="form-check-input me-3" ${column.drift_suitable ? '' : 'disabled'}>
+                    ${suitabilityIcon}
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${column.name}</div>
+                        <small class="text-muted">
+                            ${column.type} | ${column.unique_count} unique | ${column.missing_pct} missing
+                            <br>
+                            <span class="badge badge-sm ${column.drift_suitable ? 'bg-success' : 'bg-secondary'}">
+                                ${column.drift_type}
+                            </span>
+                        </small>
+                    </div>
+                `;
+                
+                if (column.drift_suitable) {
+                    columnItem.addEventListener('click', () => toggleColumnSelection(column.name, columnItem));
+                }
+                
+                elements.columnSelector.appendChild(columnItem);
+            });
+        }
+
+        function toggleColumnSelection(columnName, element) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            const isSelected = appState.selectedColumns.includes(columnName);
+            
+            if (isSelected) {
+                appState.selectedColumns = appState.selectedColumns.filter(col => col !== columnName);
+                checkbox.checked = false;
+                element.classList.remove('selected');
+            } else {
+                appState.selectedColumns.push(columnName);
+                checkbox.checked = true;
+                element.classList.add('selected');
+            }
+        }
+
+        async function handleAnalysisSubmit(event) {
+            event.preventDefault();
+            
+            if (appState.selectedColumns.length === 0) {
+                showError('Please select at least one column for analysis.');
+                return;
+            }
+            
+            const formData = {
+                session_id: appState.sessionId,
+                selected_columns: appState.selectedColumns,
+                model: document.getElementById('model-select').value,
+                split_method: document.getElementById('split-method').value,
+                split_ratio: parseFloat(document.getElementById('split-ratio').value),
+                drift_threshold: parseFloat(document.getElementById('drift-threshold').value)
+            };
+            
+            try {
+                showAnalysisLoading();
+                
+                const response = await fetch('/api/data-drift/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+                
+                appState.analysisResult = result;
+                appState.driftId = result.drift_id;
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                showError('Analysis failed: ' + error.message);
+            } finally {
+                hideAnalysisLoading();
+            }
+        }
+
+        function showAnalysisLoading() {
+            elements.loadingContainer.style.display = 'block';
+            elements.resultsContainer.style.display = 'none';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                elements.progressBar.style.width = progress + '%';
+            }, 500);
+            
+            // Store interval for cleanup
+            elements.loadingContainer.progressInterval = progressInterval;
+        }
+
+        function hideAnalysisLoading() {
+            elements.loadingContainer.style.display = 'none';
+            
+            // Clear progress interval
+            if (elements.loadingContainer.progressInterval) {
+                clearInterval(elements.loadingContainer.progressInterval);
+            }
+            
+            elements.progressBar.style.width = '100%';
+        }
+
+        function displayResults(result) {
+            elements.resultsContainer.style.display = 'block';
+            
+            // Update overall results
+            document.getElementById('overall-drift-score').textContent = result.overall_drift_score.toFixed(4);
+            document.getElementById('columns-analyzed').textContent = result.column_results.length;
+            document.getElementById('drift-detected-count').textContent = 
+                result.column_results.filter(col => col.drift_detected).length;
+            document.getElementById('processing-time').textContent = result.processing_time + 's';
+            
+            // Update drift status badge
+            const statusBadge = document.getElementById('drift-status-badge');
+            if (result.drift_detected) {
+                statusBadge.textContent = 'Drift Detected';
+                statusBadge.className = 'badge bg-danger';
+            } else {
+                statusBadge.textContent = 'No Drift';
+                statusBadge.className = 'badge bg-success';
+            }
+            
+            // Display column results
+            displayColumnResults(result.column_results);
+            
+            // Display visualizations
+            displayVisualizations(result.visualizations);
+            
+            // Display AI insights
+            displayAIInsights(result.ai_insights);
+            
+            // Display recommendations
+            displayRecommendations(result.recommendations);
+            
+            // Enable download button
+            elements.downloadBtn.disabled = false;
+            
+            // Scroll to results
+            elements.resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayColumnResults(columnResults) {
+            const container = document.getElementById('column-results');
+            container.innerHTML = '';
+            
+            columnResults.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `drift-result ${getDriftClass(result.drift_magnitude)}`;
+                
+                const statusIcon = result.drift_detected ? 
+                    '<i class="bi bi-exclamation-triangle text-warning"></i>' : 
+                    '<i class="bi bi-check-circle text-success"></i>';
+                
+                resultDiv.innerHTML = `
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h6 class="mb-1">
+                                ${statusIcon}
+                                ${result.column}
+                            </h6>
+                            <small class="text-muted">${result.test_used}</small>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="fw-bold">${result.drift_score.toFixed(4)}</div>
+                                <small class="text-muted">Drift Score</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <div class="fw-bold">${result.p_value.toFixed(4)}</div>
+                                <small class="text-muted">P-Value</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center">
+                                <span class="badge ${getMagnitudeBadgeClass(result.drift_magnitude)}">
+                                    ${result.drift_magnitude}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">${result.summary}</small>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(resultDiv);
+            });
+        }
+
+        function displayVisualizations(visualizations) {
+            const container = document.getElementById('visualizations-container');
+            container.innerHTML = '';
+            
+            if (!visualizations || visualizations.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No visualizations available</p>';
+                return;
+            }
+            
+            visualizations.forEach(viz => {
+                const vizDiv = document.createElement('div');
+                vizDiv.className = 'visualization-container slide-up';
+                vizDiv.innerHTML = `
+                    <h6>${viz.title}</h6>
+                    <img src="data:image/png;base64,${viz.data}" alt="${viz.title}" class="img-fluid">
+                `;
+                container.appendChild(vizDiv);
+            });
+        }
+
+        function displayAIInsights(insights) {
+            const container = document.getElementById('ai-insights-container');
+            container.innerHTML = '';
+            
+            if (!insights || insights.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No AI insights available</p>';
+                return;
+            }
+            
+            insights.forEach(insight => {
+                const insightDiv = document.createElement('div');
+                insightDiv.className = `insight-card ${insight.severity.toLowerCase()}-severity slide-up`;
+                
+                const actionIcon = insight.action_required ? 
+                    '<i class="bi bi-exclamation-circle text-warning"></i>' : 
+                    '<i class="bi bi-info-circle text-info"></i>';
+                
+                insightDiv.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <div class="me-3 mt-1">${actionIcon}</div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-2">${insight.title}</h6>
+                            <p class="mb-2">${insight.description}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge ${getSeverityBadgeClass(insight.severity)}">${insight.severity} Priority</span>
+                                ${insight.action_required ? '<small class="text-warning">Action Required</small>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(insightDiv);
+            });
+        }
+
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendations-container');
+            container.innerHTML = '';
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No recommendations available</p>';
+                return;
+            }
+            
+            recommendations.forEach(rec => {
+                const recDiv = document.createElement('div');
+                recDiv.className = 'card mb-3 slide-up';
+                recDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title mb-2">
+                                    <i class="bi bi-lightbulb me-2"></i>
+                                    ${rec.title}
+                                </h6>
+                                <p class="card-text">${rec.description}</p>
+                                <small class="text-muted">Category: ${rec.category}</small>
+                            </div>
+                            <span class="badge ${getPriorityBadgeClass(rec.priority)}">${rec.priority}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(recDiv);
+            });
+        }
+
+        async function handleDownload() {
+            if (!appState.driftId) {
+                showError('No analysis results to download');
+                return;
+            }
+            
+            try {
+                elements.downloadBtn.disabled = true;
+                elements.downloadBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Preparing Download...';
+                
+                const response = await fetch('/api/data-drift/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        drift_id: appState.driftId
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `drift_analysis_${appState.datasetInfo.filename}_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                showError('Download failed: ' + error.message);
+            } finally {
+                elements.downloadBtn.disabled = false;
+                elements.downloadBtn.innerHTML = '<i class="bi bi-file-earmark-arrow-down me-2"></i>Download Enhanced Dataset';
+            }
+        }
+
+        // Utility functions
+        function getDriftClass(magnitude) {
+            switch (magnitude?.toLowerCase()) {
+                case 'high': return 'high-drift';
+                case 'medium': return 'medium-drift';
+                case 'low': return 'low-drift';
+                default: return 'no-drift';
+            }
+        }
+
+        function getMagnitudeBadgeClass(magnitude) {
+            switch (magnitude?.toLowerCase()) {
+                case 'high': return 'bg-danger';
+                case 'medium': return 'bg-warning';
+                case 'low': return 'bg-info';
+                default: return 'bg-success';
+            }
+        }
+
+        function getSeverityBadgeClass(severity) {
+            switch (severity?.toLowerCase()) {
+                case 'high': return 'bg-danger';
+                case 'medium': return 'bg-warning';
+                default: return 'bg-info';
+            }
+        }
+
+        function getPriorityBadgeClass(priority) {
+            switch (priority?.toLowerCase()) {
+                case 'high': return 'bg-danger';
+                case 'medium': return 'bg-warning';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function showLoading(message = 'Loading...') {
+            // Implementation for showing loading state
+        }
+
+        function hideLoading() {
+            // Implementation for hiding loading state
+        }
+
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

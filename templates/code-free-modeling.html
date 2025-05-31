@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code-Free Modeling - Dataiku Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .header-section {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .step.completed {
+            background: var(--success-color);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+            border-radius: 16px 16px 0 0 !important;
+            padding: 1.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .model-card {
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .model-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.05);
+        }
+        
+        .model-card.selected {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.1);
+        }
+        
+        .feature-item {
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            background: rgba(51, 102, 255, 0.1);
+        }
+        
+        .feature-item.selected {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+        
+        .insight-card {
+            border-left: 4px solid var(--primary-color);
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+        }
+        
+        .badge {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: var(--success-color);
+        }
+        
+        .badge-warning {
+            background: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background: var(--danger-color);
+        }
+        
+        .visualization-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .model-comparison-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+        }
+        
+        .table td {
+            padding: 1rem;
+            border-color: rgba(51, 102, 255, 0.1);
+        }
+        
+        .best-model {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h4>Training Models...</h4>
+            <p>This may take a few minutes. Please wait while we build your models.</p>
+            <div class="progress mt-3">
+                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="bi bi-robot me-3"></i>
+                        Code-Free Modeling
+                    </h1>
+                    <p class="lead mb-0">Build powerful machine learning models without writing a single line of code. Our AI-powered platform handles everything from data preprocessing to model deployment.</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="step-indicator">
+                        <div class="step active" id="step1">
+                            <i class="bi bi-1-circle me-2"></i>
+                            Setup
+                        </div>
+                        <div class="step" id="step2">
+                            <i class="bi bi-2-circle me-2"></i>
+                            Configure
+                        </div>
+                        <div class="step" id="step3">
+                            <i class="bi bi-3-circle me-2"></i>
+                            Results
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dataset Analysis Section -->
+        <div class="setup-section" id="setupSection">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="bi bi-table me-2"></i>
+                                Dataset Analysis
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="datasetInfo">
+                                <!-- Dataset information will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Variable Selection -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bullseye me-2"></i>
+                                Select Target Variable
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Choose the column you want to predict</p>
+                            <div id="targetVariables">
+                                <!-- Target variables will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Selection -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-sliders me-2"></i>
+                                Select Features
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Choose the columns to use for prediction</p>
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary btn-sm me-2" onclick="selectAllFeatures()">Select All</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="clearAllFeatures()">Clear All</button>
+                            </div>
+                            <div id="featureVariables" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Feature variables will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-primary btn-lg px-5" onclick="proceedToConfiguration()">
+                        <i class="bi bi-arrow-right me-2"></i>
+                        Proceed to Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div class="configuration-section" id="configurationSection" style="display: none;">
+            <div class="row">
+                <!-- Model Selection -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-cpu me-2"></i>
+                                Select Models
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Choose which algorithms to train and compare</p>
+                            <div id="modelSelection">
+                                <!-- Model options will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear me-2"></i>
+                                Advanced Options
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="handleMissing" checked>
+                                <label class="form-check-label" for="handleMissing">
+                                    Handle Missing Values
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="scaleFeatures" checked>
+                                <label class="form-check-label" for="scaleFeatures">
+                                    Scale Features
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="createInteractions">
+                                <label class="form-check-label" for="createInteractions">
+                                    Create Feature Interactions
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="hyperparameterTuning">
+                                <label class="form-check-label" for="hyperparameterTuning">
+                                    Hyperparameter Tuning
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="missingStrategy" class="form-label">Missing Value Strategy</label>
+                                <select class="form-select" id="missingStrategy">
+                                    <option value="mean">Mean (Numeric)</option>
+                                    <option value="median" selected>Median (Numeric)</option>
+                                    <option value="mode">Mode (Categorical)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-secondary me-3" onclick="backToSetup()">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Setup
+                    </button>
+                    <button class="btn btn-primary btn-lg px-5" onclick="startTraining()">
+                        <i class="bi bi-play-circle me-2"></i>
+                        Start Training
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <!-- Model Comparison -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="bi bi-trophy me-2"></i>
+                                Model Performance Comparison
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="model-comparison-table">
+                                <table class="table table-hover mb-0" id="modelComparisonTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Primary Metric</th>
+                                            <th>Cross-Validation</th>
+                                            <th>Training Time</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modelComparisonBody">
+                                        <!-- Model comparison results will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizations -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="visualization-container">
+                        <h5 class="mb-3">
+                            <i class="bi bi-bar-chart me-2"></i>
+                            Model Performance
+                        </h5>
+                        <div id="modelComparisonChart">
+                            <!-- Model comparison chart will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="visualization-container">
+                        <h5 class="mb-3">
+                            <i class="bi bi-graph-up me-2"></i>
+                            Feature Importance
+                        </h5>
+                        <div id="featureImportanceChart">
+                            <!-- Feature importance chart will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                AI-Powered Insights
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="aiInsights">
+                                <!-- AI insights will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ETL Benefits -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">
+                                <i class="bi bi-diagram-3 me-2"></i>
+                                ETL Integration Benefits
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Why Use Code-Free Modeling in ETL?</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Rapid prototyping and model development</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>No coding expertise required</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Automated feature engineering and preprocessing</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Built-in model comparison and selection</li>
+                                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Seamless integration with data pipelines</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">How to Use in Your ETL Pipeline</h6>
+                                    <ol class="list-unstyled">
+                                        <li class="mb-2"><span class="badge bg-primary me-2">1</span>Upload your cleaned dataset</li>
+                                        <li class="mb-2"><span class="badge bg-primary me-2">2</span>Select target variable and features</li>
+                                        <li class="mb-2"><span class="badge bg-primary me-2">3</span>Choose models and configure options</li>
+                                        <li class="mb-2"><span class="badge bg-primary me-2">4</span>Train and compare multiple models</li>
+                                        <li class="mb-2"><span class="badge bg-primary me-2">5</span>Deploy best model to production</li>
+                                        <li class="mb-2"><span class="badge bg-primary me-2">6</span>Monitor and retrain as needed</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary me-3" onclick="downloadResults()">
+                        <i class="bi bi-download me-2"></i>
+                        Download Results
+                    </button>
+                    <button class="btn btn-success me-3" onclick="deployModel()">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        Deploy Best Model
+                    </button>
+                    <button class="btn btn-primary" onclick="startNewModeling()">
+                        <i class="bi bi-arrow-repeat me-2"></i>
+                        Start New Modeling
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: new URLSearchParams(window.location.search).get('session_id'),
+            datasetInfo: null,
+            selectedTarget: null,
+            selectedFeatures: [],
+            problemType: null,
+            selectedModels: [],
+            modelingResults: null,
+            currentStep: 1
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!appState.sessionId) {
+                alert('No session found. Please upload a dataset first.');
+                window.location.href = '/';
+                return;
+            }
+            
+            loadDatasetInfo();
+        });
+
+        // Load dataset information
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/code-free-modeling/analyze-dataset?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset');
+                }
+                
+                appState.datasetInfo = data;
+                renderDatasetInfo();
+                renderTargetVariables();
+                renderFeatureVariables();
+                
+            } catch (error) {
+                console.error('Error loading dataset:', error);
+                alert('Error loading dataset: ' + error.message);
+            }
+        }
+
+        // Render dataset information
+        function renderDatasetInfo() {
+            const container = document.getElementById('datasetInfo');
+            const data = appState.datasetInfo;
+            
+            container.innerHTML = `
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.shape[0].toLocaleString()}</div>
+                        <div class="text-muted">Rows</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.shape[1]}</div>
+                        <div class="text-muted">Columns</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.data_quality.missing_percentage.toFixed(1)}%</div>
+                        <div class="text-muted">Missing Data</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.recommendations.length}</div>
+                        <div class="text-muted">Recommendations</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render target variables
+        function renderTargetVariables() {
+            const container = document.getElementById('targetVariables');
+            const suitableColumns = appState.datasetInfo.columns.filter(col => col.suitable_for_target);
+            
+            if (suitableColumns.length === 0) {
+                container.innerHTML = '<p class="text-warning">No suitable target variables found. Please check your data.</p>';
+                return;
+            }
+            
+            container.innerHTML = suitableColumns.map(col => `
+                <div class="feature-item" onclick="selectTarget('${col.name}', '${col.problem_type}')">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${col.name}</strong>
+                            <div class="text-muted small">${col.dtype} • ${col.unique_count} unique values</div>
+                        </div>
+                        <span class="badge ${col.problem_type === 'classification' ? 'badge-primary' : 'badge-success'}">${col.problem_type}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render feature variables
+        function renderFeatureVariables() {
+            const container = document.getElementById('featureVariables');
+            const columns = appState.datasetInfo.columns;
+            
+            container.innerHTML = columns.map(col => `
+                <div class="feature-item" onclick="toggleFeature('${col.name}')">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="feature_${col.name}" onchange="toggleFeature('${col.name}')">
+                        <label class="form-check-label" for="feature_${col.name}">
+                            <strong>${col.name}</strong>
+                            <div class="text-muted small">${col.dtype} • ${col.missing_percentage.toFixed(1)}% missing</div>
+                        </label>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select target variable
+        function selectTarget(columnName, problemType) {
+            // Clear previous selection
+            document.querySelectorAll('#targetVariables .feature-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Select new target
+            event.currentTarget.classList.add('selected');
+            appState.selectedTarget = columnName;
+            appState.problemType = problemType;
+            
+            // Remove target from features if selected
+            if (appState.selectedFeatures.includes(columnName)) {
+                toggleFeature(columnName);
+            }
+            
+            console.log('Selected target:', columnName, 'Problem type:', problemType);
+        }
+
+        // Toggle feature selection
+        function toggleFeature(columnName) {
+            const checkbox = document.getElementById(`feature_${columnName}`);
+            const isSelected = checkbox.checked;
+            
+            if (columnName === appState.selectedTarget) {
+                checkbox.checked = false;
+                alert('Cannot select target variable as a feature.');
+                return;
+            }
+            
+            if (isSelected) {
+                if (!appState.selectedFeatures.includes(columnName)) {
+                    appState.selectedFeatures.push(columnName);
+                }
+            } else {
+                appState.selectedFeatures = appState.selectedFeatures.filter(f => f !== columnName);
+            }
+            
+            console.log('Selected features:', appState.selectedFeatures);
+        }
+
+        // Select all features
+        function selectAllFeatures() {
+            appState.datasetInfo.columns.forEach(col => {
+                if (col.name !== appState.selectedTarget) {
+                    const checkbox = document.getElementById(`feature_${col.name}`);
+                    if (checkbox && !checkbox.checked) {
+                        checkbox.checked = true;
+                        if (!appState.selectedFeatures.includes(col.name)) {
+                            appState.selectedFeatures.push(col.name);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Clear all features
+        function clearAllFeatures() {
+            appState.selectedFeatures = [];
+            document.querySelectorAll('#featureVariables input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        // Proceed to configuration
+        function proceedToConfiguration() {
+            if (!appState.selectedTarget) {
+                alert('Please select a target variable.');
+                return;
+            }
+            
+            if (appState.selectedFeatures.length === 0) {
+                alert('Please select at least one feature.');
+                return;
+            }
+            
+            // Update step indicator
+            updateStepIndicator(2);
+            
+            // Show configuration section
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('configurationSection').style.display = 'block';
+            
+            // Load model options
+            renderModelOptions();
+        }
+
+        // Render model options
+        function renderModelOptions() {
+            const container = document.getElementById('modelSelection');
+            const problemType = appState.problemType;
+            
+            const models = {
+                'classification': [
+                    { name: 'Logistic Regression', description: 'Fast and interpretable linear classifier' },
+                    { name: 'Random Forest', description: 'Robust ensemble method with high accuracy' },
+                    { name: 'Gradient Boosting', description: 'Sequential ensemble with excellent performance' },
+                    { name: 'Support Vector Machine', description: 'Powerful classifier for complex boundaries' },
+                    { name: 'Neural Network', description: 'Deep learning approach for complex patterns' }
+                ],
+                'regression': [
+                    { name: 'Linear Regression', description: 'Simple linear relationship modeling' },
+                    { name: 'Ridge Regression', description: 'Regularized linear regression' },
+                    { name: 'Random Forest', description: 'Robust ensemble method for regression' },
+                    { name: 'Gradient Boosting', description: 'Sequential ensemble with excellent performance' },
+                    { name: 'Support Vector Regression', description: 'Support Vector Regression for non-linear patterns' }
+                ]
+            };
+            
+            const modelList = models[problemType] || [];
+            
+            container.innerHTML = modelList.map(model => `
+                <div class="model-card" onclick="toggleModel('${model.name}')">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="model_${model.name.replace(/\s+/g, '_')}" onchange="toggleModel('${model.name}')">
+                        <label class="form-check-label" for="model_${model.name.replace(/\s+/g, '_')}">
+                            <strong>${model.name}</strong>
+                            <div class="text-muted small">${model.description}</div>
+                        </label>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Select all models by default
+            modelList.forEach(model => {
+                toggleModel(model.name, true);
+            });
+        }
+
+        // Toggle model selection
+        function toggleModel(modelName, forceSelect = false) {
+            const checkbox = document.getElementById(`model_${modelName.replace(/\s+/g, '_')}`);
+            const modelCard = checkbox.closest('.model-card');
+            
+            if (forceSelect) {
+                checkbox.checked = true;
+            }
+            
+            const isSelected = checkbox.checked;
+            
+            if (isSelected) {
+                modelCard.classList.add('selected');
+                if (!appState.selectedModels.includes(modelName)) {
+                    appState.selectedModels.push(modelName);
+                }
+            } else {
+                modelCard.classList.remove('selected');
+                appState.selectedModels = appState.selectedModels.filter(m => m !== modelName);
+            }
+            
+            console.log('Selected models:', appState.selectedModels);
+        }
+
+        // Back to setup
+        function backToSetup() {
+            updateStepIndicator(1);
+            document.getElementById('configurationSection').style.display = 'none';
+            document.getElementById('setupSection').style.display = 'block';
+        }
+
+        // Start training
+        async function startTraining() {
+            if (appState.selectedModels.length === 0) {
+                alert('Please select at least one model.');
+                return;
+            }
+            
+            // Show loading overlay
+            showLoading(true);
+            
+            // Prepare training parameters
+            const trainingParams = {
+                session_id: appState.sessionId,
+                target_column: appState.selectedTarget,
+                feature_columns: appState.selectedFeatures,
+                problem_type: appState.problemType,
+                selected_models: appState.selectedModels,
+                preprocessing_options: {
+                    handle_missing: document.getElementById('handleMissing').checked,
+                    scale_features: document.getElementById('scaleFeatures').checked,
+                    create_interactions: document.getElementById('createInteractions').checked,
+                    numeric_strategy: document.getElementById('missingStrategy').value
+                },
+                use_hyperparameter_tuning: document.getElementById('hyperparameterTuning').checked
+            };
+            
+            try {
+                const response = await fetch('/api/code-free-modeling/train', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(trainingParams)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Training failed');
+                }
+                
+                appState.modelingResults = data;
+                showResults();
+                
+            } catch (error) {
+                console.error('Training error:', error);
+                alert('Training failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show loading overlay
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            const progressBar = document.getElementById('progressBar');
+            
+            if (show) {
+                overlay.style.display = 'flex';
+                
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    progressBar.style.width = progress + '%';
+                }, 1000);
+                
+                overlay.dataset.interval = interval;
+            } else {
+                overlay.style.display = 'none';
+                if (overlay.dataset.interval) {
+                    clearInterval(overlay.dataset.interval);
+                }
+                progressBar.style.width = '100%';
+            }
+        }
+
+        // Show results
+        function showResults() {
+            updateStepIndicator(3);
+            
+            // Hide configuration section
+            document.getElementById('configurationSection').style.display = 'none';
+            
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            // Render results
+            renderModelComparison();
+            renderVisualizations();
+            renderInsights();
+            
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Render model comparison table
+        function renderModelComparison() {
+            const tbody = document.getElementById('modelComparisonBody');
+            const results = appState.modelingResults.results;
+            const problemType = appState.problemType;
+            
+            // Sort models by performance
+            const sortedModels = Object.entries(results).sort((a, b) => {
+                const metricA = problemType === 'classification' ? a[1].metrics?.accuracy || 0 : a[1].metrics?.r2_score || 0;
+                const metricB = problemType === 'classification' ? b[1].metrics?.accuracy || 0 : b[1].metrics?.r2_score || 0;
+                return metricB - metricA;
+            });
+            
+            tbody.innerHTML = sortedModels.map(([modelName, result], index) => {
+                if (result.error) {
+                    return `
+                        <tr>
+                            <td>${modelName}</td>
+                            <td colspan="4" class="text-danger">Error: ${result.error}</td>
+                        </tr>
+                    `;
+                }
+                
+                const primaryMetric = problemType === 'classification' ? result.metrics.accuracy : result.metrics.r2_score;
+                const cvScore = result.cv_scores.mean;
+                const isBest = index === 0;
+                
+                return `
+                    <tr class="${isBest ? 'best-model' : ''}">
+                        <td>
+                            <strong>${modelName}</strong>
+                            ${isBest ? '<span class="badge badge-success ms-2">Best</span>' : ''}
+                        </td>
+                        <td>${primaryMetric.toFixed(3)}</td>
+                        <td>${cvScore.toFixed(3)} ± ${result.cv_scores.std.toFixed(3)}</td>
+                        <td>${appState.modelingResults.processing_time}s</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render visualizations
+        function renderVisualizations() {
+            const visualizations = appState.modelingResults.visualizations;
+            
+            // Model comparison chart
+            if (visualizations.model_comparison) {
+                document.getElementById('modelComparisonChart').innerHTML = `
+                    <img src="data:image/png;base64,${visualizations.model_comparison}" 
+                         class="img-fluid" alt="Model Comparison Chart">
+                `;
+            }
+            
+            // Feature importance chart
+            if (visualizations.feature_importance) {
+                document.getElementById('featureImportanceChart').innerHTML = `
+                    <img src="data:image/png;base64,${visualizations.feature_importance}" 
+                         class="img-fluid" alt="Feature Importance Chart">
+                `;
+            }
+        }
+
+        // Render AI insights
+        function renderInsights() {
+            const container = document.getElementById('aiInsights');
+            const insights = appState.modelingResults.insights;
+            
+            container.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="mb-0">${insight.title}</h6>
+                        <span class="badge ${getPriorityBadgeClass(insight.priority)}">${insight.priority}</span>
+                    </div>
+                    <p class="mb-2">${insight.description}</p>
+                    <small class="text-muted">Category: ${insight.category}</small>
+                </div>
+            `).join('');
+        }
+
+        // Get priority badge class
+        function getPriorityBadgeClass(priority) {
+            switch (priority.toLowerCase()) {
+                case 'high': return 'badge-danger';
+                case 'medium': return 'badge-warning';
+                case 'low': return 'badge-success';
+                default: return 'badge-secondary';
+            }
+        }
+
+        // Update step indicator
+        function updateStepIndicator(step) {
+            appState.currentStep = step;
+            
+            // Reset all steps
+            document.querySelectorAll('.step').forEach(stepEl => {
+                stepEl.classList.remove('active', 'completed');
+            });
+            
+            // Mark completed steps
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}`).classList.add('completed');
+            }
+            
+            // Mark current step
+            document.getElementById(`step${step}`).classList.add('active');
+        }
+
+        // Download results
+        async function downloadResults() {
+            if (!appState.modelingResults) {
+                alert('No results to download.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/code-free-modeling/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        modeling_id: appState.modelingResults.modeling_id
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `code_free_modeling_results_${Date.now()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        // Deploy model
+        function deployModel() {
+            alert('Model deployment feature coming soon! Your best performing model will be deployed to production with monitoring and API endpoints.');
+        }
+
+        // Start new modeling
+        function startNewModeling() {
+            if (confirm('Are you sure you want to start a new modeling session? Current results will be lost.')) {
+                // Reset state
+                appState.selectedTarget = null;
+                appState.selectedFeatures = [];
+                appState.problemType = null;
+                appState.selectedModels = [];
+                appState.modelingResults = null;
+                
+                // Reset UI
+                updateStepIndicator(1);
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('configurationSection').style.display = 'none';
+                document.getElementById('setupSection').style.display = 'block';
+                
+                // Clear selections
+                document.querySelectorAll('.feature-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>

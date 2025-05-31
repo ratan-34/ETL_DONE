@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Training & Deployment - Dataiku Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .header-title {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            font-size: 2rem;
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Card Styles */
+        .feature-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(51, 102, 255, 0.15);
+        }
+        
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.3);
+        }
+        
+        .step.completed .step-number {
+            background: var(--gradient-success);
+            color: white;
+        }
+        
+        .step-label {
+            margin-left: 12px;
+            font-weight: 500;
+            color: #64748B;
+        }
+        
+        .step.active .step-label {
+            color: var(--primary-color);
+        }
+        
+        .step.completed .step-label {
+            color: var(--success-color);
+        }
+        
+        /* Form Styles */
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .section-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 12px;
+            color: var(--primary-color);
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* Progress Bar */
+        .training-progress {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color) 0deg, #E2E8F0 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+        
+        .progress-circle::before {
+            content: '';
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+        
+        .progress-text {
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            color: #64748B;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Data Table */
+        .data-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .table th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 16px;
+        }
+        
+        .table td {
+            padding: 12px 16px;
+            border-color: rgba(51, 102, 255, 0.1);
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #E2E8F0;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .step-indicator {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step {
+                margin: 10px 0;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+        }
+        
+        /* Custom Checkbox Styles */
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* Select Styles */
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        /* Alert Styles */
+        .alert-info {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(51, 102, 255, 0.2);
+            color: var(--primary-color);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        
+        /* Deployment Section */
+        .deployment-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);
+            border: 2px solid var(--success-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+        
+        .deployment-url {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="header-title mb-0">Model Training & Deployment</h1>
+                    <p class="text-muted mb-0">Build, train, and deploy machine learning models with advanced ETL integration</p>
+                </div>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-outline-secondary" onclick="window.close()">
+                        <i class="bi bi-x-lg me-2"></i>Close
+                    </button>
+                    <button class="btn btn-primary" id="help-btn">
+                        <i class="bi bi-question-circle me-2"></i>Help
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step-1">
+                <div class="step-number">1</div>
+                <div class="step-label">Data Preview</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-number">2</div>
+                <div class="step-label">Model Configuration</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-number">3</div>
+                <div class="step-label">Training</div>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-number">4</div>
+                <div class="step-label">Results & Deployment</div>
+            </div>
+        </div>
+
+        <!-- Loading Section -->
+        <div id="loading-section" class="text-center" style="display: none;">
+            <div class="loading-spinner"></div>
+            <h4>Loading dataset information...</h4>
+            <p class="text-muted">Please wait while we analyze your data</p>
+        </div>
+
+        <!-- Step 1: Data Preview -->
+        <div id="data-preview-section" class="animate__animated animate__fadeIn">
+            <div class="feature-card">
+                <div class="p-4">
+                    <h3 class="section-title">
+                        <i class="bi bi-table"></i>
+                        Dataset Overview
+                    </h3>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value" id="total-rows">0</div>
+                                <div class="metric-label">Total Rows</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value" id="total-columns">0</div>
+                                <div class="metric-label">Total Columns</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value" id="numeric-columns">0</div>
+                                <div class="metric-label">Numeric Columns</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card">
+                                <div class="metric-value" id="categorical-columns">0</div>
+                                <div class="metric-label">Categorical Columns</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="data-table">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="data-preview-table">
+                                <thead>
+                                    <tr id="table-header">
+                                        <!-- Headers will be populated dynamically -->
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body">
+                                    <!-- Data will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-lg" id="configure-model-btn">
+                            <i class="bi bi-gear me-2"></i>
+                            Configure Model Training
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Model Configuration -->
+        <div id="model-config-section" style="display: none;" class="animate__animated animate__fadeIn">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="bi bi-sliders"></i>
+                            Model Configuration
+                        </h3>
+                        
+                        <form id="model-config-form">
+                            <!-- Target Column Selection -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Target Column (What to predict)</label>
+                                <select class="form-select" id="target-column" required>
+                                    <option value="">Select target column...</option>
+                                </select>
+                                <div class="form-text">Choose the column you want to predict</div>
+                            </div>
+
+                            <!-- Feature Columns Selection -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Feature Columns (Input variables)</label>
+                                <div id="feature-columns" class="row">
+                                    <!-- Feature checkboxes will be populated dynamically -->
+                                </div>
+                                <div class="form-text">Select the columns to use as input features for training</div>
+                            </div>
+
+                            <!-- Problem Type -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Problem Type</label>
+                                <select class="form-select" id="problem-type" required>
+                                    <option value="">Auto-detect based on target column</option>
+                                    <option value="classification">Classification</option>
+                                    <option value="regression">Regression</option>
+                                </select>
+                            </div>
+
+                            <!-- Algorithm Selection -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Algorithm</label>
+                                <select class="form-select" id="algorithm" required>
+                                    <option value="">Select algorithm...</option>
+                                </select>
+                                <div class="form-text">Choose the machine learning algorithm for training</div>
+                            </div>
+
+                            <!-- Advanced Options -->
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-3">Advanced Options</h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Test Size (for validation)</label>
+                                        <select class="form-select" id="test-size">
+                                            <option value="0.2">20% (Recommended)</option>
+                                            <option value="0.3">30%</option>
+                                            <option value="0.25">25%</option>
+                                            <option value="0.15">15%</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" id="feature-engineering" checked>
+                                            <label class="form-check-label fw-bold" for="feature-engineering">
+                                                Apply Automated Feature Engineering
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" class="btn btn-outline-secondary me-3" id="back-to-preview-btn">
+                                    <i class="bi bi-arrow-left me-2"></i>Back to Preview
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-play-circle me-2"></i>
+                                    Start Training
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="form-section">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Why Use This in ETL?
+                        </h5>
+                        <div class="alert alert-info">
+                            <h6 class="fw-bold">ETL Integration Benefits:</h6>
+                            <ul class="mb-0">
+                                <li><strong>Automated Predictions:</strong> Integrate trained models into your data pipeline</li>
+                                <li><strong>Real-time Scoring:</strong> Score new data as it flows through ETL</li>
+                                <li><strong>Data Quality:</strong> Use models to detect anomalies and data drift</li>
+                                <li><strong>Feature Engineering:</strong> Automatically create derived features</li>
+                                <li><strong>Batch Processing:</strong> Score large datasets efficiently</li>
+                            </ul>
+                        </div>
+                        
+                        <h6 class="fw-bold mt-4 mb-3">How to Use:</h6>
+                        <ol>
+                            <li>Select your target variable (what to predict)</li>
+                            <li>Choose input features (predictor variables)</li>
+                            <li>Select appropriate algorithm</li>
+                            <li>Train and evaluate model performance</li>
+                            <li>Deploy model for real-time predictions</li>
+                            <li>Integrate into your ETL pipeline</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Training Progress -->
+        <div id="training-section" style="display: none;" class="animate__animated animate__fadeIn">
+            <div class="training-progress">
+                <div class="progress-circle" id="progress-circle">
+                    <div class="progress-text" id="progress-text">0%</div>
+                </div>
+                <h3 class="mb-3">Training Your Model</h3>
+                <p class="text-muted mb-4" id="training-status">Initializing training process...</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Results & Deployment -->
+        <div id="results-section" class="results-section animate__animated animate__fadeIn">
+            <div class="row">
+                <!-- Model Performance -->
+                <div class="col-lg-8">
+                    <div class="feature-card mb-4">
+                        <div class="p-4">
+                            <h3 class="section-title">
+                                <i class="bi bi-graph-up"></i>
+                                Model Performance
+                            </h3>
+                            
+                            <div class="row mb-4" id="performance-metrics">
+                                <!-- Metrics will be populated dynamically -->
+                            </div>
+
+                            <!-- Visualization -->
+                            <div id="model-visualization" class="text-center">
+                                <!-- Charts will be populated dynamically -->
+                            </div>
+
+                            <!-- Feature Importance -->
+                            <div id="feature-importance-section" class="mt-4">
+                                <h5 class="fw-bold mb-3">Feature Importance</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="feature-importance-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Feature</th>
+                                                <th>Importance</th>
+                                                <th>Impact</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Feature importance will be populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights -->
+                    <div class="feature-card">
+                        <div class="p-4">
+                            <h3 class="section-title">
+                                <i class="bi bi-lightbulb"></i>
+                                AI-Powered Insights
+                            </h3>
+                            <div id="ai-insights">
+                                <!-- AI insights will be populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Panel -->
+                <div class="col-lg-4">
+                    <div class="feature-card mb-4">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-download me-2"></i>
+                                Download Results
+                            </h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" id="download-data-btn">
+                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                    Enhanced Dataset with Predictions
+                                </button>
+                                <button class="btn btn-outline-secondary" id="download-model-btn">
+                                    <i class="bi bi-cpu me-2"></i>
+                                    Trained Model (.pkl)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card mb-4">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-rocket me-2"></i>
+                                Model Deployment
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label">Deployment Name</label>
+                                <input type="text" class="form-control" id="deployment-name" placeholder="my-model-v1">
+                            </div>
+                            <button class="btn btn-success w-100" id="deploy-model-btn">
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                Deploy Model
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Deployment Info -->
+                    <div id="deployment-info" style="display: none;">
+                        <div class="deployment-card">
+                            <h6 class="fw-bold text-success mb-3">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Model Deployed Successfully!
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">API Endpoint:</label>
+                                <div class="deployment-url" id="deployment-url">
+                                    <!-- URL will be populated -->
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-success btn-sm" id="copy-url-btn">
+                                <i class="bi bi-clipboard me-2"></i>
+                                Copy URL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="p-4">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Actions
+                            </h5>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" id="retrain-btn">
+                                    <i class="bi bi-arrow-clockwise me-2"></i>
+                                    Retrain with Different Settings
+                                </button>
+                                <button class="btn btn-outline-secondary" id="new-model-btn">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Train New Model
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            currentStep: 1,
+            trainingResult: null,
+            modelId: null
+        };
+
+        // Algorithm configurations
+        const algorithms = {
+            classification: {
+                'Random Forest': 'Ensemble method with high accuracy and interpretability',
+                'Gradient Boosting': 'Sequential ensemble with excellent performance',
+                'Logistic Regression': 'Fast linear classifier for binary and multiclass problems',
+                'SVM': 'Powerful classifier for complex decision boundaries',
+                'Neural Network': 'Deep learning approach for complex patterns',
+                'XGBoost': 'Extreme Gradient Boosting with superior performance',
+                'LightGBM': 'Fast gradient boosting with memory efficiency'
+            },
+            regression: {
+                'Random Forest': 'Robust ensemble method for regression',
+                'Gradient Boosting': 'Sequential ensemble with excellent performance',
+                'Linear Regression': 'Simple linear relationship modeling',
+                'SVR': 'Support Vector Regression for non-linear patterns',
+                'Neural Network': 'Deep learning approach for complex patterns',
+                'XGBoost': 'Extreme Gradient Boosting for regression',
+                'LightGBM': 'Fast gradient boosting for regression'
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get session ID from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                alert('No session found. Please upload a dataset first.');
+                window.close();
+                return;
+            }
+
+            // Initialize the application
+            init();
+        });
+
+        async function init() {
+            try {
+                showLoading(true);
+                await loadDatasetInfo();
+                setupEventListeners();
+                showLoading(false);
+                showStep(1);
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Error loading dataset: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        function showLoading(show) {
+            const loadingSection = document.getElementById('loading-section');
+            const sections = ['data-preview-section', 'model-config-section', 'training-section', 'results-section'];
+            
+            if (show) {
+                loadingSection.style.display = 'block';
+                sections.forEach(id => document.getElementById(id).style.display = 'none');
+            } else {
+                loadingSection.style.display = 'none';
+            }
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                const response = await fetch(`/api/model-training/dataset-info?session_id=${appState.sessionId}`);
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to load dataset');
+                }
+                
+                appState.datasetInfo = await response.json();
+                populateDataPreview();
+                populateModelConfiguration();
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                throw error;
+            }
+        }
+
+        function populateDataPreview() {
+            const data = appState.datasetInfo;
+            
+            // Update metrics
+            document.getElementById('total-rows').textContent = data.rows.toLocaleString();
+            document.getElementById('total-columns').textContent = data.columns.toLocaleString();
+            
+            const numericCols = data.columns_info.filter(col => col.type.includes('int') || col.type.includes('float')).length;
+            const categoricalCols = data.columns_info.filter(col => col.type === 'object').length;
+            
+            document.getElementById('numeric-columns').textContent = numericCols;
+            document.getElementById('categorical-columns').textContent = categoricalCols;
+            
+            // Populate data table
+            const tableHeader = document.getElementById('table-header');
+            const tableBody = document.getElementById('table-body');
+            
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            // Add headers (limit to first 10 columns for display)
+            const displayColumns = data.columns_info.slice(0, 10);
+            displayColumns.forEach(col => {
+                const th = document.createElement('th');
+                th.innerHTML = `
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold">${col.name}</span>
+                        <small class="text-muted">${col.type}</small>
+                    </div>
+                `;
+                tableHeader.appendChild(th);
+            });
+            
+            // Add sample data rows (first 5 rows)
+            for (let i = 0; i < Math.min(5, data.rows); i++) {
+                const tr = document.createElement('tr');
+                displayColumns.forEach(col => {
+                    const td = document.createElement('td');
+                    const sampleValue = col.sample_values && col.sample_values[i % col.sample_values.length] || 'N/A';
+                    td.textContent = sampleValue;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            }
+        }
+
+        function populateModelConfiguration() {
+            const data = appState.datasetInfo;
+            
+            // Populate target column options
+            const targetSelect = document.getElementById('target-column');
+            targetSelect.innerHTML = '<option value="">Select target column...</option>';
+            
+            data.columns_info.forEach(col => {
+                if (col.is_target_suitable) {
+                    const option = document.createElement('option');
+                    option.value = col.name;
+                    option.textContent = `${col.name} (${col.target_type})`;
+                    option.setAttribute('data-type', col.target_type);
+                    targetSelect.appendChild(option);
+                }
+            });
+            
+            // Populate feature columns
+            const featureContainer = document.getElementById('feature-columns');
+            featureContainer.innerHTML = '';
+            
+            data.columns_info.forEach(col => {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col-md-6 mb-2';
+                
+                colDiv.innerHTML = `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="${col.name}" id="feature-${col.name}">
+                        <label class="form-check-label" for="feature-${col.name}">
+                            <strong>${col.name}</strong>
+                            <br><small class="text-muted">${col.type} • ${col.unique_count} unique • ${col.missing_pct} missing</small>
+                        </label>
+                    </div>
+                `;
+                
+                featureContainer.appendChild(colDiv);
+            });
+        }
+
+        function setupEventListeners() {
+            // Step navigation
+            document.getElementById('configure-model-btn').addEventListener('click', () => showStep(2));
+            document.getElementById('back-to-preview-btn').addEventListener('click', () => showStep(1));
+            
+            // Target column change
+            document.getElementById('target-column').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const problemType = selectedOption.getAttribute('data-type');
+                
+                if (problemType) {
+                    document.getElementById('problem-type').value = problemType;
+                    populateAlgorithms(problemType);
+                }
+                
+                // Uncheck the target column from features
+                const targetCheckbox = document.getElementById(`feature-${this.value}`);
+                if (targetCheckbox) {
+                    targetCheckbox.checked = false;
+                    targetCheckbox.disabled = true;
+                }
+                
+                // Re-enable other checkboxes
+                document.querySelectorAll('#feature-columns input[type="checkbox"]').forEach(cb => {
+                    if (cb.value !== this.value) {
+                        cb.disabled = false;
+                    }
+                });
+            });
+            
+            // Problem type change
+            document.getElementById('problem-type').addEventListener('change', function() {
+                if (this.value) {
+                    populateAlgorithms(this.value);
+                }
+            });
+            
+            // Form submission
+            document.getElementById('model-config-form').addEventListener('submit', handleTraining);
+            
+            // Action buttons
+            document.getElementById('download-data-btn').addEventListener('click', () => downloadResults('enhanced_data'));
+            document.getElementById('download-model-btn').addEventListener('click', () => downloadResults('model'));
+            document.getElementById('deploy-model-btn').addEventListener('click', deployModel);
+            document.getElementById('copy-url-btn').addEventListener('click', copyDeploymentUrl);
+            document.getElementById('retrain-btn').addEventListener('click', () => showStep(2));
+            document.getElementById('new-model-btn').addEventListener('click', () => showStep(1));
+            
+            // Help button
+            document.getElementById('help-btn').addEventListener('click', showHelp);
+        }
+
+        function populateAlgorithms(problemType) {
+            const algorithmSelect = document.getElementById('algorithm');
+            algorithmSelect.innerHTML = '<option value="">Select algorithm...</option>';
+            
+            if (algorithms[problemType]) {
+                Object.entries(algorithms[problemType]).forEach(([name, description]) => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    option.title = description;
+                    algorithmSelect.appendChild(option);
+                });
+            }
+        }
+
+        function showStep(stepNumber) {
+            // Update step indicator
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.classList.remove('active', 'completed');
+                
+                if (i < stepNumber) {
+                    step.classList.add('completed');
+                } else if (i === stepNumber) {
+                    step.classList.add('active');
+                }
+            }
+            
+            // Show/hide sections
+            const sections = {
+                1: 'data-preview-section',
+                2: 'model-config-section',
+                3: 'training-section',
+                4: 'results-section'
+            };
+            
+            Object.values(sections).forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+            
+            if (sections[stepNumber]) {
+                document.getElementById(sections[stepNumber]).style.display = 'block';
+            }
+            
+            appState.currentStep = stepNumber;
+        }
+
+        async function handleTraining(event) {
+            event.preventDefault();
+            
+            // Validate form
+            const targetColumn = document.getElementById('target-column').value;
+            const algorithm = document.getElementById('algorithm').value;
+            const problemType = document.getElementById('problem-type').value;
+            
+            if (!targetColumn || !algorithm || !problemType) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // Get selected features
+            const featureCheckboxes = document.querySelectorAll('#feature-columns input[type="checkbox"]:checked');
+            const featureColumns = Array.from(featureCheckboxes).map(cb => cb.value);
+            
+            if (featureColumns.length === 0) {
+                alert('Please select at least one feature column');
+                return;
+            }
+            
+            // Show training step
+            showStep(3);
+            
+            // Prepare training data
+            const trainingData = {
+                session_id: appState.sessionId,
+                target_column: targetColumn,
+                feature_columns: featureColumns,
+                algorithm: algorithm,
+                problem_type: problemType,
+                test_size: parseFloat(document.getElementById('test-size').value),
+                apply_feature_engineering: document.getElementById('feature-engineering').checked
+            };
+            
+            try {
+                await trainModel(trainingData);
+            } catch (error) {
+                console.error('Training error:', error);
+                alert('Training failed: ' + error.message);
+                showStep(2);
+            }
+        }
+
+        async function trainModel(trainingData) {
+            // Simulate training progress
+            const progressSteps = [
+                { progress: 10, status: 'Preparing data...' },
+                { progress: 25, status: 'Applying feature engineering...' },
+                { progress: 40, status: 'Splitting data into train/test sets...' },
+                { progress: 60, status: 'Training model...' },
+                { progress: 80, status: 'Evaluating performance...' },
+                { progress: 95, status: 'Generating insights...' },
+                { progress: 100, status: 'Training complete!' }
+            ];
+            
+            for (const step of progressSteps) {
+                updateTrainingProgress(step.progress, step.status);
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+            
+            try {
+                const response = await fetch('/api/model-training/train', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(trainingData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Training failed');
+                }
+                
+                appState.trainingResult = await response.json();
+                appState.modelId = appState.trainingResult.model_id;
+                
+                // Show results
+                populateResults();
+                showStep(4);
+                
+            } catch (error) {
+                console.error('Training API error:', error);
+                throw error;
+            }
+        }
+
+        function updateTrainingProgress(progress, status) {
+            const progressCircle = document.getElementById('progress-circle');
+            const progressText = document.getElementById('progress-text');
+            const statusText = document.getElementById('training-status');
+            
+            // Update progress circle
+            const angle = (progress / 100) * 360;
+            progressCircle.style.background = `conic-gradient(var(--primary-color) ${angle}deg, #E2E8F0 ${angle}deg)`;
+            
+            // Update text
+            progressText.textContent = `${progress}%`;
+            statusText.textContent = status;
+        }
+
+        function populateResults() {
+            const result = appState.trainingResult;
+            
+            // Populate performance metrics
+            const metricsContainer = document.getElementById('performance-metrics');
+            metricsContainer.innerHTML = '';
+            
+            Object.entries(result.metrics).forEach(([key, value]) => {
+                if (typeof value === 'number' && key !== 'classification_report') {
+                    const metricDiv = document.createElement('div');
+                    metricDiv.className = 'col-md-3 mb-3';
+                    
+                    const displayValue = key.includes('score') || key === 'accuracy' ? 
+                        (value * 100).toFixed(1) + '%' : 
+                        value.toFixed(3);
+                    
+                    metricDiv.innerHTML = `
+                        <div class="metric-card">
+                            <div class="metric-value">${displayValue}</div>
+                            <div class="metric-label">${key.replace(/_/g, ' ').toUpperCase()}</div>
+                        </div>
+                    `;
+                    
+                    metricsContainer.appendChild(metricDiv);
+                }
+            });
+            
+            // Show visualization
+            const vizContainer = document.getElementById('model-visualization');
+            if (result.metrics.confusion_matrix) {
+                vizContainer.innerHTML = `
+                    <h5 class="fw-bold mb-3">Confusion Matrix</h5>
+                    <img src="data:image/png;base64,${result.metrics.confusion_matrix}" class="img-fluid" style="max-height: 400px;">
+                `;
+            } else if (result.metrics.prediction_plot) {
+                vizContainer.innerHTML = `
+                    <h5 class="fw-bold mb-3">Prediction vs Actual</h5>
+                    <img src="data:image/png;base64,${result.metrics.prediction_plot}" class="img-fluid" style="max-height: 400px;">
+                `;
+            }
+            
+            // Populate feature importance
+            if (result.feature_importance && result.feature_importance.length > 0) {
+                const tableBody = document.querySelector('#feature-importance-table tbody');
+                tableBody.innerHTML = '';
+                
+                result.feature_importance.slice(0, 10).forEach(([feature, importance]) => {
+                    const row = document.createElement('tr');
+                    const importancePercent = (importance * 100).toFixed(1);
+                    
+                    row.innerHTML = `
+                        <td><strong>${feature}</strong></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                    <div class="progress-bar" style="width: ${importancePercent}%"></div>
+                                </div>
+                                <small>${importancePercent}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${importance > 0.1 ? 'bg-success' : importance > 0.05 ? 'bg-warning' : 'bg-secondary'}">
+                                ${importance > 0.1 ? 'High' : importance > 0.05 ? 'Medium' : 'Low'}
+                            </span>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Populate AI insights
+            const insightsContainer = document.getElementById('ai-insights');
+            insightsContainer.innerHTML = '';
+            
+            if (result.ai_insights && result.ai_insights.length > 0) {
+                result.ai_insights.forEach(insight => {
+                    const insightDiv = document.createElement('div');
+                    insightDiv.className = 'alert alert-info mb-3';
+                    
+                    const priorityBadge = insight.priority ? 
+                        `<span class="badge bg-${insight.priority === 'High' ? 'danger' : insight.priority === 'Medium' ? 'warning' : 'secondary'} me-2">${insight.priority}</span>` : '';
+                    
+                    insightDiv.innerHTML = `
+                        <h6 class="fw-bold mb-2">
+                            ${priorityBadge}
+                            ${insight.title}
+                        </h6>
+                        <p class="mb-0">${insight.description}</p>
+                    `;
+                    
+                    insightsContainer.appendChild(insightDiv);
+                });
+            } else {
+                insightsContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold">Training Complete</h6>
+                        <p class="mb-0">Your model has been successfully trained and is ready for deployment.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function downloadResults(type) {
+            if (!appState.modelId) {
+                alert('No trained model found');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/model-training/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_id: appState.modelId,
+                        download_type: type
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = response.headers.get('Content-Disposition')?.split('filename=')[1] || `download_${type}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        async function deployModel() {
+            if (!appState.modelId) {
+                alert('No trained model found');
+                return;
+            }
+            
+            const deploymentName = document.getElementById('deployment-name').value || 'my-model-v1';
+            
+            try {
+                const response = await fetch('/api/model-training/deploy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model_id: appState.modelId,
+                        deployment_name: deploymentName
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Deployment failed');
+                }
+                
+                const deploymentResult = await response.json();
+                
+                // Show deployment info
+                document.getElementById('deployment-url').textContent = deploymentResult.deployment_url;
+                document.getElementById('deployment-info').style.display = 'block';
+                
+                // Update button
+                const deployBtn = document.getElementById('deploy-model-btn');
+                deployBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Deployed Successfully';
+                deployBtn.disabled = true;
+                
+            } catch (error) {
+                console.error('Deployment error:', error);
+                alert('Deployment failed: ' + error.message);
+            }
+        }
+
+        function copyDeploymentUrl() {
+            const urlElement = document.getElementById('deployment-url');
+            const url = urlElement.textContent;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('copy-url-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check me-2"></i>Copied!';
+                btn.classList.add('btn-success');
+                btn.classList.remove('btn-outline-success');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-success');
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Failed to copy URL');
+            });
+        }
+
+        function showHelp() {
+            const helpContent = `
+                <div class="modal fade" id="helpModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Model Training & Deployment Help</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h6 class="fw-bold">Getting Started:</h6>
+                                <ol>
+                                    <li><strong>Data Preview:</strong> Review your dataset structure and quality</li>
+                                    <li><strong>Model Configuration:</strong> Select target variable and features</li>
+                                    <li><strong>Training:</strong> Watch real-time training progress</li>
+                                    <li><strong>Results:</strong> Analyze performance and deploy your model</li>
+                                </ol>
+                                
+                                <h6 class="fw-bold mt-4">ETL Integration:</h6>
+                                <ul>
+                                    <li>Use deployed models for real-time scoring in data pipelines</li>
+                                    <li>Integrate predictions into downstream analytics</li>
+                                    <li>Monitor model performance over time</li>
+                                    <li>Automate retraining based on data drift</li>
+                                </ul>
+                                
+                                <h6 class="fw-bold mt-4">Best Practices:</h6>
+                                <ul>
+                                    <li>Ensure target variable has sufficient variation</li>
+                                    <li>Select relevant features that correlate with target</li>
+                                    <li>Use feature engineering for better performance</li>
+                                    <li>Monitor deployed models for accuracy degradation</li>
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to body if not exists
+            if (!document.getElementById('helpModal')) {
+                document.body.insertAdjacentHTML('beforeend', helpContent);
+            }
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('helpModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

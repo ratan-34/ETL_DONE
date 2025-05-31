@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded ML for Data Matching & Clustering - Dataiku Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-subtitle {
+            color: #64748B;
+            font-size: 0.9rem;
+        }
+        
+        /* Button Styles */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        
+        /* Form Styles */
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.1);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Column Selection */
+        .column-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+            background: white;
+        }
+        
+        .column-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .column-item:hover {
+            background: rgba(51, 102, 255, 0.05);
+        }
+        
+        .column-item.selected {
+            background: rgba(51, 102, 255, 0.1);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .column-checkbox {
+            margin-right: 0.75rem;
+        }
+        
+        .column-info {
+            flex: 1;
+        }
+        
+        .column-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .column-details {
+            font-size: 0.85rem;
+            color: #64748B;
+        }
+        
+        .suitability-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .suitability-excellent {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+        
+        .suitability-high {
+            background: rgba(51, 102, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .suitability-good {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--accent-color);
+        }
+        
+        .suitability-fair {
+            background: rgba(245, 158, 11, 0.1);
+            color: #D97706;
+        }
+        
+        .suitability-poor {
+            background: rgba(239, 68, 68, 0.1);
+            color: #DC2626;
+        }
+        
+        .suitability-low {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6B7280;
+        }
+        
+        /* Progress and Loading */
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: #E2E8F0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+            color: var(--primary-color);
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #64748B;
+            font-weight: 600;
+        }
+        
+        /* Data Preview */
+        .data-preview {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-bottom: 2px solid rgba(51, 102, 255, 0.1);
+            font-weight: 700;
+            color: var(--dark-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table td {
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(51, 102, 255, 0.02);
+        }
+        
+        /* Insights Section */
+        .insight-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .insight-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .insight-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .insight-icon {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .insight-description {
+            color: #64748B;
+            line-height: 1.6;
+        }
+        
+        .severity-high {
+            border-left-color: var(--danger-color);
+        }
+        
+        .severity-medium {
+            border-left-color: var(--warning-color);
+        }
+        
+        .severity-low {
+            border-left-color: var(--success-color);
+        }
+        
+        /* ETL Benefits Section */
+        .etl-benefits {
+            background: linear-gradient(135deg, rgba(51, 102, 255, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+        }
+        
+        .benefit-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .benefit-category {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        
+        .benefit-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .benefit-description {
+            color: #64748B;
+            font-size: 0.9rem;
+        }
+        
+        /* Operation Type Cards */
+        .operation-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .operation-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .operation-card.selected {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.05);
+        }
+        
+        .operation-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .operation-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .operation-description {
+            color: #64748B;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
+            
+            .column-selector {
+                max-height: 200px;
+            }
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content text-center">
+                <h1><i class="bi bi-diagram-3-fill me-3"></i>Embedded ML for Data Matching & Clustering</h1>
+                <p>Advanced machine learning techniques for data deduplication, record matching, and intelligent clustering</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Dataset Overview -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-database me-2"></i>Dataset Overview</h5>
+                        <p class="card-subtitle">Current dataset information and suitability for ML operations</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="dataset-overview">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="total-rows">-</div>
+                                    <div class="metric-label">Total Records</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="total-columns">-</div>
+                                    <div class="metric-label">Total Columns</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="total-duplicates">-</div>
+                                    <div class="metric-label">Potential Duplicates</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value" id="data-quality-score">-</div>
+                                    <div class="metric-label">Data Quality Score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operation Selection -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-gear me-2"></i>Select ML Operation</h5>
+                        <p class="card-subtitle">Choose the type of machine learning operation to perform</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="operation-selection">
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="duplicate_detection">
+                                    <div class="operation-icon"><i class="bi bi-files"></i></div>
+                                    <div class="operation-title">Duplicate Detection</div>
+                                    <div class="operation-description">Automatically detect and remove duplicate records using advanced similarity algorithms</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="record_matching">
+                                    <div class="operation-icon"><i class="bi bi-link-45deg"></i></div>
+                                    <div class="operation-title">Record Matching</div>
+                                    <div class="operation-description">Match and merge similar records from different sources using ML techniques</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="clustering">
+                                    <div class="operation-icon"><i class="bi bi-diagram-3"></i></div>
+                                    <div class="operation-title">Intelligent Clustering</div>
+                                    <div class="operation-description">Group similar records into meaningful clusters for segmentation and analysis</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="data_cleaning">
+                                    <div class="operation-icon"><i class="bi bi-brush"></i></div>
+                                    <div class="operation-title">ML Data Cleaning</div>
+                                    <div class="operation-description">Clean and standardize data using machine learning-powered techniques</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="entity_resolution">
+                                    <div class="operation-icon"><i class="bi bi-person-check"></i></div>
+                                    <div class="operation-title">Entity Resolution</div>
+                                    <div class="operation-description">Resolve and merge entities across multiple data sources for master data management</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="operation-card" data-operation="pattern_discovery">
+                                    <div class="operation-icon"><i class="bi bi-search"></i></div>
+                                    <div class="operation-title">Pattern Discovery</div>
+                                    <div class="operation-description">Discover hidden patterns and structures in your data for validation and insights</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-sliders me-2"></i>Column Selection & Configuration</h5>
+                        <p class="card-subtitle">Select columns and configure parameters for the ML operation</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- Column Selection -->
+                        <div class="mb-4">
+                            <label class="form-label">Select Columns for Processing</label>
+                            <div class="column-selector" id="column-selector">
+                                <!-- Columns will be populated here -->
+                            </div>
+                        </div>
+
+                        <!-- Operation-specific Configuration -->
+                        <div id="operation-config">
+                            <!-- Similarity Threshold -->
+                            <div class="mb-3" id="similarity-config" style="display: none;">
+                                <label for="similarity-threshold" class="form-label">Similarity Threshold</label>
+                                <input type="range" class="form-range" id="similarity-threshold" min="0.5" max="1.0" step="0.05" value="0.8">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted">0.5 (Loose)</small>
+                                    <small class="text-muted" id="threshold-value">0.8</small>
+                                    <small class="text-muted">1.0 (Strict)</small>
+                                </div>
+                            </div>
+
+                            <!-- Clustering Configuration -->
+                            <div id="clustering-config" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="clustering-method" class="form-label">Clustering Method</label>
+                                        <select class="form-select" id="clustering-method">
+                                            <option value="kmeans">K-Means</option>
+                                            <option value="dbscan">DBSCAN</option>
+                                            <option value="hierarchical">Hierarchical</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="num-clusters" class="form-label">Number of Clusters</label>
+                                        <input type="number" class="form-control" id="num-clusters" value="5" min="2" max="20">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Model Selection -->
+                            <div class="mb-3">
+                                <label for="model-select" class="form-label">AI Model</label>
+                                <select class="form-select" id="model-select">
+                                    <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                    <option value="gpt-4">GPT-4</option>
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-primary" id="process-btn" disabled>
+                                <i class="bi bi-play-circle me-2"></i>Start Processing
+                            </button>
+                            <button class="btn btn-outline-primary" id="reset-btn">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="bi bi-graph-up me-2"></i>Processing Stats</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Selected Columns</small>
+                                <small class="text-muted" id="selected-count">0</small>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" id="selection-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Data Quality</small>
+                                <small class="text-muted" id="quality-indicator">-</small>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar bg-success" id="quality-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Tip:</strong> Select columns with high matching suitability for better results.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <h4 class="mt-4">Processing Your Data...</h4>
+            <p class="text-muted">This may take a few moments depending on your dataset size</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="results-section">
+            <!-- Summary Metrics -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>Processing Results</h5>
+                            <p class="card-subtitle">Summary of the ML operation results</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="row" id="results-metrics">
+                                <!-- Metrics will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Preview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title"><i class="bi bi-table me-2"></i>Processed Data Preview</h5>
+                                <p class="card-subtitle">Preview of your processed dataset with ML enhancements</p>
+                            </div>
+                            <button class="btn btn-success" id="download-btn" disabled>
+                                <i class="bi bi-download me-2"></i>Download Results
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="data-preview">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="results-table">
+                                        <thead id="results-table-header">
+                                            <!-- Headers will be populated here -->
+                                        </thead>
+                                        <tbody id="results-table-body">
+                                            <!-- Data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="bi bi-lightbulb me-2"></i>AI-Powered Insights</h5>
+                            <p class="card-subtitle">Intelligent analysis and recommendations from our AI models</p>
+                        </div>
+                        <div class="card-body">
+                            <div id="insights-container">
+                                <!-- Insights will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Processing Info -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title"><i class="bi bi-clock me-2"></i>Processing Info</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Operation:</strong>
+                                <span id="operation-type-display">-</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Processing Time:</strong>
+                                <span id="processing-time">-</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Model Used:</strong>
+                                <span id="model-used">-</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Columns Processed:</strong>
+                                <span id="columns-processed">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETL Benefits Section -->
+        <div class="etl-benefits">
+            <div class="text-center mb-4">
+                <h3><i class="bi bi-arrow-repeat me-2"></i>ETL Integration Benefits</h3>
+                <p class="text-muted">How this feature enhances your ETL pipeline and data processing workflows</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <h5><i class="bi bi-question-circle me-2"></i>Why Use This in ETL?</h5>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Data Quality</div>
+                        <div class="benefit-title">Automated Data Cleansing</div>
+                        <div class="benefit-description">Automatically identify and resolve data quality issues before they enter your data warehouse, ensuring clean, reliable data for analytics.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Efficiency</div>
+                        <div class="benefit-title">Reduced Manual Effort</div>
+                        <div class="benefit-description">Eliminate time-consuming manual data matching and deduplication tasks, allowing your team to focus on higher-value activities.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Accuracy</div>
+                        <div class="benefit-title">ML-Powered Precision</div>
+                        <div class="benefit-description">Leverage advanced machine learning algorithms to achieve higher accuracy in record matching and duplicate detection than rule-based approaches.</div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <h5><i class="bi bi-gear me-2"></i>How to Use in Your ETL Pipeline</h5>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Step 1</div>
+                        <div class="benefit-title">Data Ingestion</div>
+                        <div class="benefit-description">Integrate this feature into your data ingestion process to clean and match records as they enter your system.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Step 2</div>
+                        <div class="benefit-title">Transformation</div>
+                        <div class="benefit-description">Use clustering and entity resolution during the transformation phase to create unified customer views and standardized entities.</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-category">Step 3</div>
+                        <div class="benefit-title">Loading</div>
+                        <div class="benefit-description">Load clean, deduplicated, and properly matched data into your target systems for reliable analytics and reporting.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="operation-benefits" class="mt-4">
+                <!-- Operation-specific benefits will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application State
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            selectedOperation: null,
+            operationId: null,
+            processingResults: null
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session found. Please upload a dataset first.');
+                return;
+            }
+
+            // Load dataset information
+            loadDatasetInfo();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Operation selection
+            document.querySelectorAll('.operation-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    selectOperation(this.dataset.operation);
+                });
+            });
+
+            // Similarity threshold slider
+            const thresholdSlider = document.getElementById('similarity-threshold');
+            thresholdSlider.addEventListener('input', function() {
+                document.getElementById('threshold-value').textContent = this.value;
+            });
+
+            // Process button
+            document.getElementById('process-btn').addEventListener('click', startProcessing);
+
+            // Reset button
+            document.getElementById('reset-btn').addEventListener('click', resetForm);
+
+            // Download button
+            document.getElementById('download-btn').addEventListener('click', downloadResults);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`/api/embedded-ml/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset information');
+                }
+                
+                appState.datasetInfo = data;
+                updateDatasetOverview(data);
+                populateColumnSelector(data.columns_info);
+                
+                showLoading(false);
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        function updateDatasetOverview(data) {
+            document.getElementById('total-rows').textContent = data.rows.toLocaleString();
+            document.getElementById('total-columns').textContent = data.columns;
+            document.getElementById('total-duplicates').textContent = data.total_duplicates.toLocaleString();
+            document.getElementById('data-quality-score').textContent = data.data_quality_score;
+            document.getElementById('quality-indicator').textContent = data.data_quality_score;
+            
+            // Update quality progress bar
+            const qualityScore = parseFloat(data.data_quality_score.replace('%', ''));
+            document.getElementById('quality-progress').style.width = qualityScore + '%';
+        }
+
+        function populateColumnSelector(columns) {
+            const selector = document.getElementById('column-selector');
+            selector.innerHTML = '';
+
+            columns.forEach((column, index) => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.innerHTML = `
+                    <input type="checkbox" class="form-check-input column-checkbox" id="col-${index}" value="${column.name}">
+                    <div class="column-info">
+                        <div class="column-name">${column.name}</div>
+                        <div class="column-details">
+                            ${column.type} • ${column.unique_count} unique • ${column.missing_pct} missing
+                        </div>
+                        <div class="mt-1">
+                            <span class="suitability-badge suitability-${column.matching_suitability.toLowerCase()}">${column.matching_suitability} Match</span>
+                            <span class="suitability-badge suitability-${column.clustering_potential.toLowerCase()} ms-2">${column.clustering_potential} Cluster</span>
+                        </div>
+                    </div>
+                `;
+
+                // Add click event for the entire item
+                columnItem.addEventListener('click', function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.column-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+
+                // Add change event for checkbox
+                const checkbox = columnItem.querySelector('.column-checkbox');
+                checkbox.addEventListener('change', function() {
+                    updateColumnSelection();
+                    if (this.checked) {
+                        columnItem.classList.add('selected');
+                    } else {
+                        columnItem.classList.remove('selected');
+                    }
+                });
+
+                selector.appendChild(columnItem);
+            });
+        }
+
+        function updateColumnSelection() {
+            const checkboxes = document.querySelectorAll('.column-checkbox:checked');
+            appState.selectedColumns = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Update selection count and progress
+            const totalColumns = document.querySelectorAll('.column-checkbox').length;
+            const selectedCount = appState.selectedColumns.length;
+            
+            document.getElementById('selected-count').textContent = selectedCount;
+            document.getElementById('selection-progress').style.width = (selectedCount / totalColumns * 100) + '%';
+            
+            // Enable/disable process button
+            updateProcessButton();
+        }
+
+        function selectOperation(operation) {
+            appState.selectedOperation = operation;
+            
+            // Update UI
+            document.querySelectorAll('.operation-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-operation="${operation}"]`).classList.add('selected');
+            
+            // Show/hide configuration options
+            showOperationConfig(operation);
+            
+            // Update process button
+            updateProcessButton();
+        }
+
+        function showOperationConfig(operation) {
+            // Hide all config sections
+            document.getElementById('similarity-config').style.display = 'none';
+            document.getElementById('clustering-config').style.display = 'none';
+            
+            // Show relevant config sections
+            if (['duplicate_detection', 'record_matching', 'entity_resolution'].includes(operation)) {
+                document.getElementById('similarity-config').style.display = 'block';
+            }
+            
+            if (operation === 'clustering') {
+                document.getElementById('clustering-config').style.display = 'block';
+            }
+        }
+
+        function updateProcessButton() {
+            const processBtn = document.getElementById('process-btn');
+            const canProcess = appState.selectedOperation && appState.selectedColumns.length > 0;
+            
+            processBtn.disabled = !canProcess;
+            
+            if (canProcess) {
+                processBtn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Start Processing';
+            } else {
+                processBtn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Select Operation & Columns';
+            }
+        }
+
+        async function startProcessing() {
+            try {
+                showLoading(true);
+                
+                const requestData = {
+                    session_id: appState.sessionId,
+                    operation_type: appState.selectedOperation,
+                    selected_columns: appState.selectedColumns,
+                    model: document.getElementById('model-select').value,
+                    similarity_threshold: parseFloat(document.getElementById('similarity-threshold').value),
+                    clustering_method: document.getElementById('clustering-method').value,
+                    num_clusters: parseInt(document.getElementById('num-clusters').value)
+                };
+                
+                const response = await fetch('/api/embedded-ml/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Processing failed');
+                }
+                
+                appState.processingResults = data;
+                appState.operationId = data.operation_id;
+                
+                displayResults(data);
+                showLoading(false);
+                
+            } catch (error) {
+                console.error('Error processing data:', error);
+                showError('Processing failed: ' + error.message);
+                showLoading(false);
+            }
+        }
+
+        function displayResults(data) {
+            // Show results section
+            document.getElementById('results-section').style.display = 'block';
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Update summary metrics
+            updateResultsMetrics(data.summary);
+            
+            // Update data preview
+            updateDataPreview(data.data_preview);
+            
+            // Update insights
+            updateInsights(data.insights);
+            
+            // Update processing info
+            updateProcessingInfo(data);
+            
+            // Update ETL benefits
+            updateETLBenefits(data.etl_benefits);
+            
+            // Enable download button
+            document.getElementById('download-btn').disabled = false;
+        }
+
+        function updateResultsMetrics(summary) {
+            const metricsContainer = document.getElementById('results-metrics');
+            metricsContainer.innerHTML = '';
+            
+            Object.entries(summary).forEach(([key, value]) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-3 mb-3';
+                col.innerHTML = `
+                    <div class="metric-card">
+                        <div class="metric-value">${typeof value === 'number' ? value.toLocaleString() : value}</div>
+                        <div class="metric-label">${formatMetricLabel(key)}</div>
+                    </div>
+                `;
+                metricsContainer.appendChild(col);
+            });
+        }
+
+        function updateDataPreview(dataPreview) {
+            const tableHeader = document.getElementById('results-table-header');
+            const tableBody = document.getElementById('results-table-body');
+            
+            // Clear existing content
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            if (!dataPreview || !dataPreview.data || dataPreview.data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="100%" class="text-center">No data to display</td></tr>';
+                return;
+            }
+            
+            // Create header
+            const headerRow = document.createElement('tr');
+            dataPreview.columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+            tableHeader.appendChild(headerRow);
+            
+            // Create data rows
+            dataPreview.data.forEach(row => {
+                const tr = document.createElement('tr');
+                dataPreview.columns.forEach(column => {
+                    const td = document.createElement('td');
+                    const value = row[column];
+                    td.textContent = value !== null && value !== undefined ? value : '';
+                    
+                    // Highlight new columns
+                    if (column.includes('cluster') || column.includes('duplicate') || column.includes('match') || column.includes('entity')) {
+                        td.style.backgroundColor = 'rgba(51, 102, 255, 0.1)';
+                        td.style.fontWeight = '600';
+                    }
+                    
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateInsights(insights) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = '';
+            
+            if (!insights || insights.length === 0) {
+                container.innerHTML = '<p class="text-muted">No insights available.</p>';
+                return;
+            }
+            
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = `insight-card severity-${insight.severity.toLowerCase()}`;
+                insightCard.innerHTML = `
+                    <div class="insight-title">
+                        <i class="bi bi-lightbulb insight-icon"></i>
+                        ${insight.title}
+                    </div>
+                    <div class="insight-description">${insight.description}</div>
+                `;
+                container.appendChild(insightCard);
+            });
+        }
+
+        function updateProcessingInfo(data) {
+            document.getElementById('operation-type-display').textContent = formatOperationType(data.operation || appState.selectedOperation);
+            document.getElementById('processing-time').textContent = data.processing_time ? `${data.processing_time}s` : '-';
+            document.getElementById('model-used').textContent = document.getElementById('model-select').value;
+            document.getElementById('columns-processed').textContent = appState.selectedColumns.length;
+        }
+
+        function updateETLBenefits(benefits) {
+            const container = document.getElementById('operation-benefits');
+            container.innerHTML = '';
+            
+            if (!benefits || benefits.length === 0) {
+                return;
+            }
+            
+            const title = document.createElement('h5');
+            title.innerHTML = '<i class="bi bi-star me-2"></i>Operation-Specific Benefits';
+            container.appendChild(title);
+            
+            const row = document.createElement('div');
+            row.className = 'row';
+            
+            benefits.forEach(benefit => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-3';
+                col.innerHTML = `
+                    <div class="benefit-item">
+                        <div class="benefit-category">${benefit.category}</div>
+                        <div class="benefit-title">${benefit.benefit}</div>
+                        <div class="benefit-description">${benefit.description}</div>
+                    </div>
+                `;
+                row.appendChild(col);
+            });
+            
+            container.appendChild(row);
+        }
+
+        async function downloadResults() {
+            try {
+                if (!appState.operationId) {
+                    showError('No results to download');
+                    return;
+                }
+                
+                const response = await fetch('/api/embedded-ml/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        operation_id: appState.operationId
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Download failed');
+                }
+                
+                // Create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `embedded_ml_results_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error downloading results:', error);
+                showError('Download failed: ' + error.message);
+            }
+        }
+
+        function resetForm() {
+            // Reset state
+            appState.selectedColumns = [];
+            appState.selectedOperation = null;
+            appState.operationId = null;
+            appState.processingResults = null;
+            
+            // Reset UI
+            document.querySelectorAll('.column-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.column-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelectorAll('.operation-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Hide results
+            document.getElementById('results-section').style.display = 'none';
+            
+            // Reset progress
+            document.getElementById('selected-count').textContent = '0';
+            document.getElementById('selection-progress').style.width = '0%';
+            
+            // Reset configuration
+            document.getElementById('similarity-threshold').value = 0.8;
+            document.getElementById('threshold-value').textContent = '0.8';
+            document.getElementById('clustering-method').value = 'kmeans';
+            document.getElementById('num-clusters').value = 5;
+            document.getElementById('model-select').value = 'gpt-4o';
+            
+            // Hide config sections
+            document.getElementById('similarity-config').style.display = 'none';
+            document.getElementById('clustering-config').style.display = 'none';
+            
+            // Update process button
+            updateProcessButton();
+        }
+
+        function showLoading(show) {
+            const loadingSpinner = document.getElementById('loading-spinner');
+            if (show) {
+                loadingSpinner.style.display = 'block';
+                loadingSpinner.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            // Create error alert
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Error:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert at top of container
+            const container = document.querySelector('.container');
+            container.insertBefore(alert, container.firstChild);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Utility functions
+        function formatMetricLabel(key) {
+            return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatOperationType(operation) {
+            const types = {
+                'duplicate_detection': 'Duplicate Detection',
+                'record_matching': 'Record Matching',
+                'clustering': 'Intelligent Clustering',
+                'data_cleaning': 'ML Data Cleaning',
+                'entity_resolution': 'Entity Resolution',
+                'pattern_discovery': 'Pattern Discovery'
+            };
+            return types[operation] || operation;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Engineering Interface - Dataiku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(51, 102, 255, 0.3);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #E2E8F0;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+        }
+        
+        .results-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .recommendation-card {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .etl-card {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .column-selector {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        
+        .column-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .column-item:hover {
+            background: rgba(51, 102, 255, 0.1);
+        }
+        
+        .column-item.selected {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .etl-benefits {
+            background: linear-gradient(135deg, #EBF8FF 0%, #DBEAFE 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Processing with AI...</h5>
+            <p class="text-muted">Analyzing your data using advanced LLMs</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">
+                        <i class="bi bi-cpu me-3"></i>
+                        Prompt Engineering Interface
+                    </h1>
+                    <p class="mb-0 opacity-90">Advanced LLM-powered ETL analysis and optimization</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light" onclick="window.close()">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dataset Information -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-table me-2"></i>
+                            Dataset Information
+                        </h5>
+                        <div class="row" id="datasetInfo">
+                            <!-- Dataset info will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Configuration -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-gear me-2"></i>
+                            Analysis Configuration
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label for="promptType" class="form-label">Prompt Type</label>
+                            <select class="form-select" id="promptType">
+                                <option value="data_analysis">Data Analysis & Insights</option>
+                                <option value="etl_optimization">ETL Pipeline Optimization</option>
+                                <option value="data_transformation">Data Transformation Suggestions</option>
+                                <option value="custom_prompt">Custom Analysis</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="customPromptDiv" style="display: none;">
+                            <label for="customPrompt" class="form-label">Custom Prompt</label>
+                            <textarea class="form-control" id="customPrompt" rows="4" 
+                                placeholder="Enter your custom analysis prompt..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="modelSelect" class="form-label">AI Model</label>
+                            <select class="form-select" id="modelSelect">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100" id="analyzeBtn">
+                            <i class="bi bi-play-circle me-2"></i>
+                            Start AI Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-columns me-2"></i>
+                            Column Selection
+                        </h5>
+                        <p class="text-muted">Select columns for analysis (optional)</p>
+                        <div class="column-selector" id="columnSelector">
+                            <!-- Columns will be loaded here -->
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" id="selectAllBtn">Select All</button>
+                            <button class="btn btn-outline-secondary btn-sm ms-2" id="clearAllBtn">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ETL Benefits Section -->
+        <div class="etl-benefits">
+            <h5 class="mb-4">
+                <i class="bi bi-lightbulb me-2"></i>
+                Why Use Prompt Engineering in ETL?
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">AI-Powered Insights</h6>
+                            <p class="text-muted mb-0">Leverage LLMs to discover hidden patterns and generate intelligent recommendations</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="bi bi-speedometer2"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Accelerated Analysis</h6>
+                            <p class="text-muted mb-0">Reduce analysis time from hours to minutes with automated insights</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Quality Assurance</h6>
+                            <p class="text-muted mb-0">Identify data quality issues and get automated remediation suggestions</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">ETL Optimization</h6>
+                            <p class="text-muted mb-0">Get specific recommendations to optimize your ETL pipelines</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" style="display: none;">
+            <div class="results-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>
+                        <i class="bi bi-brain me-2"></i>
+                        AI Analysis Results
+                    </h4>
+                    <div>
+                        <button class="btn btn-outline-primary me-2" id="downloadBtn">
+                            <i class="bi bi-download me-2"></i>
+                            Download Results
+                        </button>
+                        <button class="btn btn-outline-secondary" id="newAnalysisBtn">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            New Analysis
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Analysis Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-primary" id="processingTime">0s</h5>
+                                <p class="text-muted mb-0">Processing Time</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-success" id="insightsCount">0</h5>
+                                <p class="text-muted mb-0">Insights Generated</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="text-warning" id="recommendationsCount">0</h5>
+                                <p class="text-muted mb-0">Recommendations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Insights -->
+                <div class="mb-4">
+                    <h5>
+                        <i class="bi bi-lightbulb me-2"></i>
+                        Key Insights
+                    </h5>
+                    <div id="insightsContainer">
+                        <!-- Insights will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="mb-4">
+                    <h5>
+                        <i class="bi bi-check-circle me-2"></i>
+                        Recommendations
+                    </h5>
+                    <div id="recommendationsContainer">
+                        <!-- Recommendations will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- ETL Actions -->
+                <div class="mb-4">
+                    <h5>
+                        <i class="bi bi-gear-wide-connected me-2"></i>
+                        ETL Actions
+                    </h5>
+                    <div id="etlActionsContainer">
+                        <!-- ETL actions will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Data Preview -->
+                <div class="mb-4">
+                    <h5>
+                        <i class="bi bi-table me-2"></i>
+                        Enhanced Data Preview
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="dataPreviewTable">
+                            <!-- Data preview will be loaded here -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Application state
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            analysisId: null
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id');
+            
+            if (!appState.sessionId) {
+                alert('No session ID found. Please return to the main dashboard.');
+                window.close();
+                return;
+            }
+            
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function setupEventListeners() {
+            // Prompt type change
+            document.getElementById('promptType').addEventListener('change', function() {
+                const customPromptDiv = document.getElementById('customPromptDiv');
+                if (this.value === 'custom_prompt') {
+                    customPromptDiv.style.display = 'block';
+                } else {
+                    customPromptDiv.style.display = 'none';
+                }
+            });
+            
+            // Column selection
+            document.getElementById('selectAllBtn').addEventListener('click', selectAllColumns);
+            document.getElementById('clearAllBtn').addEventListener('click', clearAllColumns);
+            
+            // Analysis button
+            document.getElementById('analyzeBtn').addEventListener('click', startAnalysis);
+            
+            // Download button
+            document.getElementById('downloadBtn').addEventListener('click', downloadResults);
+            
+            // New analysis button
+            document.getElementById('newAnalysisBtn').addEventListener('click', resetAnalysis);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`/api/prompt-engineering/dataset-info?session_id=${appState.sessionId}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load dataset info');
+                }
+                
+                appState.datasetInfo = data;
+                displayDatasetInfo(data);
+                displayColumns(data.columns);
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                alert('Error loading dataset: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayDatasetInfo(data) {
+            const container = document.getElementById('datasetInfo');
+            container.innerHTML = `
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-primary">${data.filename}</h5>
+                        <p class="text-muted mb-0">Dataset Name</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-success">${data.shape[0].toLocaleString()}</h5>
+                        <p class="text-muted mb-0">Rows</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-warning">${data.shape[1]}</h5>
+                        <p class="text-muted mb-0">Columns</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h5 class="text-danger">${data.quality_issues.length}</h5>
+                        <p class="text-muted mb-0">Quality Issues</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayColumns(columns) {
+            const container = document.getElementById('columnSelector');
+            container.innerHTML = '';
+            
+            columns.forEach(column => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.textContent = column;
+                columnItem.addEventListener('click', () => toggleColumn(column, columnItem));
+                container.appendChild(columnItem);
+            });
+        }
+
+        function toggleColumn(column, element) {
+            if (appState.selectedColumns.includes(column)) {
+                appState.selectedColumns = appState.selectedColumns.filter(c => c !== column);
+                element.classList.remove('selected');
+            } else {
+                appState.selectedColumns.push(column);
+                element.classList.add('selected');
+            }
+        }
+
+        function selectAllColumns() {
+            appState.selectedColumns = [...appState.datasetInfo.columns];
+            document.querySelectorAll('.column-item').forEach(item => {
+                item.classList.add('selected');
+            });
+        }
+
+        function clearAllColumns() {
+            appState.selectedColumns = [];
+            document.querySelectorAll('.column-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        async function startAnalysis() {
+            try {
+                showLoading(true);
+                
+                const promptType = document.getElementById('promptType').value;
+                const customPrompt = document.getElementById('customPrompt').value;
+                const model = document.getElementById('modelSelect').value;
+                
+                const requestData = {
+                    session_id: appState.sessionId,
+                    selected_columns: appState.selectedColumns,
+                    prompt_type: promptType,
+                    custom_prompt: customPrompt,
+                    model: model
+                };
+                
+                const response = await fetch('/api/prompt-engineering/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+                
+                appState.analysisId = data.analysis_id;
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(data) {
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            
+            // Update summary
+            document.getElementById('processingTime').textContent = `${data.processing_time}s`;
+            document.getElementById('insightsCount').textContent = data.results.structured_insights.length;
+            document.getElementById('recommendationsCount').textContent = data.results.recommendations.length;
+            
+            // Display insights
+            displayInsights(data.results.structured_insights);
+            
+            // Display recommendations
+            displayRecommendations(data.results.recommendations);
+            
+            // Display ETL actions
+            displayETLActions(data.results.etl_actions);
+            
+            // Display data preview
+            displayDataPreview(data.data_preview);
+            
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayInsights(insights) {
+            const container = document.getElementById('insightsContainer');
+            container.innerHTML = '';
+            
+            insights.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = 'insight-card';
+                card.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-lightbulb-fill text-primary me-3 mt-1"></i>
+                        <div>
+                            <p class="mb-0">${insight}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendationsContainer');
+            container.innerHTML = '';
+            
+            recommendations.forEach(recommendation => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                card.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                        <div>
+                            <p class="mb-0">${recommendation}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function displayETLActions(actions) {
+            const container = document.getElementById('etlActionsContainer');
+            container.innerHTML = '';
+            
+            actions.forEach(action => {
+                const card = document.createElement('div');
+                card.className = 'etl-card';
+                card.innerHTML = `
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-gear-fill text-warning me-3 mt-1"></i>
+                        <div>
+                            <p class="mb-0">${action}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function displayDataPreview(preview) {
+            const table = document.getElementById('dataPreviewTable');
+            table.innerHTML = '';
+            
+            if (preview.data.length === 0) return;
+            
+            // Create header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            preview.columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Create body
+            const tbody = document.createElement('tbody');
+            preview.data.slice(0, 10).forEach(row => {
+                const tr = document.createElement('tr');
+                preview.columns.forEach(column => {
+                    const td = document.createElement('td');
+                    td.textContent = row[column] || '';
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+        }
+
+        async function downloadResults() {
+            try {
+                if (!appState.analysisId) {
+                    alert('No analysis results to download');
+                    return;
+                }
+                
+                const response = await fetch('/api/prompt-engineering/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysis_id: appState.analysisId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `prompt_engineering_results_${appState.analysisId.substring(0, 8)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error downloading results:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+
+        function resetAnalysis() {
+            document.getElementById('resultsSection').style.display = 'none';
+            appState.analysisId = null;
+            clearAllColumns();
+            document.getElementById('promptType').value = 'data_analysis';
+            document.getElementById('customPrompt').value = '';
+            document.getElementById('customPromptDiv').style.display = 'none';
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+    </script>
+</body>
+</html>

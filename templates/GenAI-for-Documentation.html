@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI for Documentation - Advanced ETL Documentation Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        :root {
+            --primary-color: #3366FF;
+            --secondary-color: #6366F1;
+            --accent-color: #8B5CF6;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-color: #1E293B;
+            --light-color: #F8FAFC;
+            --gradient-primary: linear-gradient(135deg, #3366FF 0%, #6366F1 50%, #8B5CF6 100%);
+            --gradient-secondary: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            color: var(--dark-color);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(51, 102, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            margin-right: 12px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 40px 0;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Configuration Panel */
+        .config-panel {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .config-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 12px;
+            font-size: 1.8rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(51, 102, 255, 0.25);
+            background: white;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(51, 102, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(51, 102, 255, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Column Selection */
+        .column-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .column-item {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .column-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.05);
+        }
+
+        .column-item.selected {
+            border-color: var(--primary-color);
+            background: rgba(51, 102, 255, 0.1);
+        }
+
+        .column-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        /* Loading Spinner */
+        .loading-container {
+            display: none;
+            text-align: center;
+            padding: 60px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            margin: 30px 0;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #E2E8F0;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            margin: 30px 0;
+            border: 1px solid rgba(51, 102, 255, 0.1);
+            display: none;
+        }
+
+        .documentation-content {
+            background: #1a1a1a;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            color: #e2e8f0;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .documentation-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .doc-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .doc-section h3 {
+            color: #60a5fa;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .doc-section h4 {
+            color: #34d399;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .doc-section p {
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .doc-section ul {
+            color: #cbd5e1;
+            padding-left: 20px;
+        }
+
+        .doc-section li {
+            margin-bottom: 5px;
+        }
+
+        .code-block {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            border: 1px solid #334155;
+        }
+
+        /* ETL Benefits Section */
+        .etl-benefits {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        }
+
+        .benefit-icon {
+            font-size: 1.5rem;
+            color: var(--success-color);
+            margin-right: 15px;
+            margin-top: 2px;
+        }
+
+        /* Instructions Section */
+        .instructions-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .step-number {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Data Preview */
+        .data-preview {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #E2E8F0;
+            overflow-x: auto;
+        }
+
+        .data-preview table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-preview th {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-preview td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .data-preview tr:hover {
+            background: rgba(51, 102, 255, 0.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 0;
+            }
+
+            .config-panel, .results-panel {
+                padding: 20px;
+                margin: 15px 0;
+            }
+
+            .column-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-in-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-processing {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-complete {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="bi bi-robot"></i>
+                    GenAI for Documentation
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="status-indicator status-processing" id="status-indicator">
+                        <i class="bi bi-circle-fill me-2"></i>
+                        Ready
+                    </span>
+                    <button class="btn btn-outline-secondary" onclick="window.close()">
+                        <i class="bi bi-x-lg me-2"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="container">
+            <!-- Configuration Panel -->
+            <div class="config-panel animate__animated animate__fadeIn">
+                <h2 class="section-title">
+                    <i class="bi bi-gear-fill"></i>
+                    Documentation Configuration
+                </h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label class="form-label">Select AI Model</label>
+                            <select class="form-select" id="model-select">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <label class="form-label">Documentation Type</label>
+                            <select class="form-select" id="doc-type-select">
+                                <option value="comprehensive">Comprehensive ETL Documentation</option>
+                                <option value="technical">Technical Specification</option>
+                                <option value="business">Business Requirements</option>
+                                <option value="data_dictionary">Data Dictionary</option>
+                                <option value="pipeline">Pipeline Documentation</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Select Columns for Documentation</label>
+                    <div class="column-selector" id="column-selector">
+                        <!-- Columns will be populated dynamically -->
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Additional Instructions (Optional)</label>
+                    <textarea class="form-control" id="additional-instructions" rows="3" 
+                              placeholder="Provide any specific requirements or focus areas for the documentation..."></textarea>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button class="btn btn-primary btn-lg" id="generate-docs-btn">
+                        <i class="bi bi-magic me-2"></i>
+                        Generate Documentation
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg" id="select-all-columns">
+                        <i class="bi bi-check-all me-2"></i>
+                        Select All Columns
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Container -->
+            <div class="loading-container" id="loading-container">
+                <div class="spinner"></div>
+                <h4>Generating AI-Powered Documentation...</h4>
+                <p class="text-muted">Our advanced AI models are analyzing your data and creating comprehensive documentation</p>
+                <div class="progress mt-3" style="height: 8px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         style="width: 0%; background: var(--gradient-primary);" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="results-panel" id="results-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="section-title">
+                        <i class="bi bi-file-text-fill"></i>
+                        Generated Documentation
+                    </h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success" id="download-docs-btn">
+                            <i class="bi bi-download me-2"></i>
+                            Download Documentation
+                        </button>
+                        <button class="btn btn-outline-primary" id="copy-docs-btn">
+                            <i class="bi bi-clipboard me-2"></i>
+                            Copy to Clipboard
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Documentation Content -->
+                <div class="documentation-content" id="documentation-content">
+                    <!-- Generated documentation will appear here -->
+                </div>
+
+                <!-- Data Preview -->
+                <div class="data-preview" id="data-preview">
+                    <!-- Data preview will appear here -->
+                </div>
+            </div>
+
+            <!-- ETL Benefits Section -->
+            <div class="etl-benefits">
+                <h3 class="section-title">
+                    <i class="bi bi-lightbulb-fill"></i>
+                    Why Use GenAI for ETL Documentation?
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="benefit-item">
+                            <i class="bi bi-lightning-charge-fill benefit-icon"></i>
+                            <div>
+                                <h5>Automated Documentation Generation</h5>
+                                <p>Generate comprehensive ETL documentation in seconds, not hours. Our AI analyzes your data structure and creates detailed documentation automatically.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <i class="bi bi-shield-check-fill benefit-icon"></i>
+                            <div>
+                                <h5>Data Quality Assurance</h5>
+                                <p>Identify data quality issues, missing values, and inconsistencies. Get recommendations for data cleaning and validation strategies.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <i class="bi bi-graph-up-arrow benefit-icon"></i>
+                            <div>
+                                <h5>Performance Optimization</h5>
+                                <p>Receive AI-powered suggestions for optimizing your ETL pipelines, including indexing strategies and data transformation recommendations.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="benefit-item">
+                            <i class="bi bi-people-fill benefit-icon"></i>
+                            <div>
+                                <h5>Team Collaboration</h5>
+                                <p>Create standardized documentation that helps team members understand data flows, transformations, and business logic quickly.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <i class="bi bi-arrow-repeat benefit-icon"></i>
+                            <div>
+                                <h5>Continuous Integration</h5>
+                                <p>Integrate documentation generation into your CI/CD pipeline. Keep documentation up-to-date with every data schema change.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <i class="bi bi-check-circle-fill benefit-icon"></i>
+                            <div>
+                                <h5>Compliance & Governance</h5>
+                                <p>Ensure regulatory compliance with detailed data lineage documentation and automated governance reporting.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="instructions-section">
+                <h3 class="section-title">
+                    <i class="bi bi-book-fill"></i>
+                    How to Use GenAI for Documentation
+                </h3>
+                
+                <div class="instruction-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h5>Select Your AI Model</h5>
+                        <p>Choose from our available AI models. GPT-4o is recommended for the most comprehensive and accurate documentation generation.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h5>Choose Documentation Type</h5>
+                        <p>Select the type of documentation you need - from technical specifications to business requirements and data dictionaries.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h5>Select Data Columns</h5>
+                        <p>Choose specific columns you want to document, or select all columns for comprehensive coverage. The AI will analyze each column's characteristics.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <h5>Add Custom Instructions</h5>
+                        <p>Provide additional context or specific requirements for your documentation. This helps the AI generate more targeted and relevant content.</p>
+                    </div>
+                </div>
+                
+                <div class="instruction-step">
+                    <div class="step-number">5</div>
+                    <div>
+                        <h5>Generate & Download</h5>
+                        <p>Click generate to create your documentation. Once complete, you can download it as a formatted document or copy it to your clipboard.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // Application State
+        const appState = {
+            sessionId: null,
+            datasetInfo: null,
+            selectedColumns: [],
+            generatedDocs: null
+        };
+
+        // DOM Elements
+        const elements = {
+            modelSelect: document.getElementById('model-select'),
+            docTypeSelect: document.getElementById('doc-type-select'),
+            columnSelector: document.getElementById('column-selector'),
+            additionalInstructions: document.getElementById('additional-instructions'),
+            generateDocsBtn: document.getElementById('generate-docs-btn'),
+            selectAllColumnsBtn: document.getElementById('select-all-columns'),
+            loadingContainer: document.getElementById('loading-container'),
+            resultsPanel: document.getElementById('results-panel'),
+            documentationContent: document.getElementById('documentation-content'),
+            dataPreview: document.getElementById('data-preview'),
+            downloadDocsBtn: document.getElementById('download-docs-btn'),
+            copyDocsBtn: document.getElementById('copy-docs-btn'),
+            statusIndicator: document.getElementById('status-indicator'),
+            progressBar: document.getElementById('progress-bar')
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            // Get session ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            appState.sessionId = urlParams.get('session_id') || localStorage.getItem('session_id');
+            
+            if (!appState.sessionId) {
+                showError('No session found. Please upload data first.');
+                return;
+            }
+
+            // Load dataset information
+            loadDatasetInfo();
+        }
+
+        function setupEventListeners() {
+            elements.generateDocsBtn.addEventListener('click', generateDocumentation);
+            elements.selectAllColumnsBtn.addEventListener('click', selectAllColumns);
+            elements.downloadDocsBtn.addEventListener('click', downloadDocumentation);
+            elements.copyDocsBtn.addEventListener('click', copyToClipboard);
+        }
+
+        async function loadDatasetInfo() {
+            try {
+                updateStatus('Loading dataset information...', 'processing');
+                
+                const response = await fetch(`/api/genai-docs/dataset-info?session_id=${appState.sessionId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load dataset information');
+                }
+                
+                appState.datasetInfo = await response.json();
+                renderColumnSelector();
+                updateStatus('Ready to generate documentation', 'complete');
+                
+            } catch (error) {
+                console.error('Error loading dataset info:', error);
+                showError('Failed to load dataset information: ' + error.message);
+            }
+        }
+
+        function renderColumnSelector() {
+            if (!appState.datasetInfo || !appState.datasetInfo.columns_info) {
+                return;
+            }
+
+            elements.columnSelector.innerHTML = '';
+            
+            appState.datasetInfo.columns_info.forEach(column => {
+                const columnItem = document.createElement('div');
+                columnItem.className = 'column-item';
+                columnItem.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <input type="checkbox" id="col-${column.name}" value="${column.name}" class="form-check-input">
+                        <div class="ms-2">
+                            <div class="fw-semibold">${column.name}</div>
+                            <small class="text-muted">${column.type} • ${column.missing_pct} missing</small>
+                        </div>
+                    </div>
+                `;
+                
+                const checkbox = columnItem.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        columnItem.classList.add('selected');
+                        appState.selectedColumns.push(this.value);
+                    } else {
+                        columnItem.classList.remove('selected');
+                        appState.selectedColumns = appState.selectedColumns.filter(col => col !== this.value);
+                    }
+                });
+                
+                elements.columnSelector.appendChild(columnItem);
+            });
+        }
+
+        function selectAllColumns() {
+            const checkboxes = elements.columnSelector.querySelectorAll('input[type="checkbox"]');
+            const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allSelected;
+                const event = new Event('change');
+                checkbox.dispatchEvent(event);
+            });
+        }
+
+        async function generateDocumentation() {
+            if (appState.selectedColumns.length === 0) {
+                showError('Please select at least one column for documentation.');
+                return;
+            }
+
+            try {
+                // Show loading
+                showLoading();
+                updateStatus('Generating documentation...', 'processing');
+                
+                // Simulate progress
+                simulateProgress();
+
+                const requestData = {
+                    session_id: appState.sessionId,
+                    selected_columns: appState.selectedColumns,
+                    model: elements.modelSelect.value,
+                    doc_type: elements.docTypeSelect.value,
+                    additional_instructions: elements.additionalInstructions.value
+                };
+
+                const response = await fetch('/api/genai-docs/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate documentation');
+                }
+
+                const result = await response.json();
+                appState.generatedDocs = result;
+                
+                // Hide loading and show results
+                hideLoading();
+                showResults(result);
+                updateStatus('Documentation generated successfully', 'complete');
+
+            } catch (error) {
+                console.error('Error generating documentation:', error);
+                hideLoading();
+                showError('Failed to generate documentation: ' + error.message);
+                updateStatus('Error occurred', 'error');
+            }
+        }
+
+        function showLoading() {
+            elements.loadingContainer.style.display = 'block';
+            elements.resultsPanel.style.display = 'none';
+            elements.generateDocsBtn.disabled = true;
+        }
+
+        function hideLoading() {
+            elements.loadingContainer.style.display = 'none';
+            elements.generateDocsBtn.disabled = false;
+            elements.progressBar.style.width = '0%';
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                elements.progressBar.style.width = progress + '%';
+                
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 500);
+        }
+
+        function showResults(result) {
+            elements.resultsPanel.style.display = 'block';
+            elements.resultsPanel.classList.add('fade-in');
+            
+            // Render documentation content
+            elements.documentationContent.innerHTML = result.documentation_html || result.documentation;
+            
+            // Render data preview if available
+            if (result.data_preview) {
+                renderDataPreview(result.data_preview);
+            }
+            
+            // Scroll to results
+            elements.resultsPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderDataPreview(dataPreview) {
+            if (!dataPreview.columns || !dataPreview.data) {
+                elements.dataPreview.style.display = 'none';
+                return;
+            }
+
+            let tableHTML = `
+                <h4 class="mb-3">
+                    <i class="bi bi-table me-2"></i>
+                    Data Preview (${dataPreview.shape[0]} rows × ${dataPreview.shape[1]} columns)
+                </h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            ${dataPreview.columns.map(col => `<th>${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${dataPreview.data.map(row => `
+                            <tr>
+                                ${dataPreview.columns.map(col => `<td>${row[col] || 'N/A'}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            elements.dataPreview.innerHTML = tableHTML;
+            elements.dataPreview.style.display = 'block';
+        }
+
+        async function downloadDocumentation() {
+            if (!appState.generatedDocs) {
+                showError('No documentation to download.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/genai-docs/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: appState.sessionId,
+                        doc_id: appState.generatedDocs.doc_id
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to download documentation');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ETL_Documentation_${new Date().toISOString().split('T')[0]}.html`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error('Error downloading documentation:', error);
+                showError('Failed to download documentation: ' + error.message);
+            }
+        }
+
+        function copyToClipboard() {
+            if (!appState.generatedDocs) {
+                showError('No documentation to copy.');
+                return;
+            }
+
+            const textContent = elements.documentationContent.innerText;
+            
+            navigator.clipboard.writeText(textContent).then(() => {
+                // Show success feedback
+                const originalText = elements.copyDocsBtn.innerHTML;
+                elements.copyDocsBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
+                elements.copyDocsBtn.classList.add('btn-success');
+                elements.copyDocsBtn.classList.remove('btn-outline-primary');
+                
+                setTimeout(() => {
+                    elements.copyDocsBtn.innerHTML = originalText;
+                    elements.copyDocsBtn.classList.remove('btn-success');
+                    elements.copyDocsBtn.classList.add('btn-outline-primary');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy to clipboard:', err);
+                showError('Failed to copy to clipboard');
+            });
+        }
+
+        function updateStatus(message, type) {
+            elements.statusIndicator.className = `status-indicator status-${type}`;
+            elements.statusIndicator.innerHTML = `
+                <i class="bi bi-circle-fill me-2"></i>
+                ${message}
+            `;
+        }
+
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.config-panel'));
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

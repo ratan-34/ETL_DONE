@@ -1,0 +1,14 @@
+Flask
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+openai
+xgboost
+lightgbm
+joblib
+werkzeug
+python-dotenv
+openpyxl
+xlrd
