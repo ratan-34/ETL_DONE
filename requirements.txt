@@ -12,3 +12,4 @@ werkzeug
 python-dotenv
 openpyxl
 xlrd
+gunicorn 
